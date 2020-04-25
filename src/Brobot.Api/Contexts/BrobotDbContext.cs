@@ -25,6 +25,45 @@ namespace Brobot.Api.Contexts
                 .Property(s => s.Name)
                 .IsRequired(true)
                 .HasMaxLength(32);
+
+            builder.Entity<Channel>()
+                .ToTable("Channel")
+                .HasKey(c => c.ChannelId);
+            builder.Entity<Channel>()
+                .Property(c => c.Name)
+                .IsRequired(true)
+                .HasMaxLength(32);
+            builder.Entity<Channel>()
+                .HasOne(c => c.Server)
+                .WithMany(s => s.Channels)
+                .HasForeignKey(c => c.ServerId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<DiscordUser>()
+                .ToTable("DiscordUser")
+                .HasKey(du => du.DiscordUserId);
+            builder.Entity<DiscordUser>()
+                .Property(du => du.Username)
+                .IsRequired(true)
+                .HasMaxLength(32);
+            builder.Entity<DiscordUser>()
+                .Property(du => du.Timezone)
+                .IsRequired(false)
+                .HasMaxLength(50);
+
+            builder.Entity<DiscordUserChannel>()
+                .ToTable("DiscordUserChannel")
+                .HasKey(duc => new { duc.DiscordUserId, duc.ChannelId });
+            builder.Entity<DiscordUserChannel>()
+                .HasOne(duc => duc.DiscordUser)
+                .WithMany(du => du.DiscordUserChannels)
+                .HasForeignKey(duc => duc.DiscordUserId)
+                .OnDelete(DeleteBehavior.Cascade);
+            builder.Entity<DiscordUserChannel>()
+                .HasOne(duc => duc.Channel)
+                .WithMany(c => c.DiscordUserChannels)
+                .HasForeignKey(duc => duc.ChannelId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
     }

@@ -8,7 +8,13 @@ namespace Brobot.Api.Entities
     public class Server
     {
         public ulong ServerId { get; set; }
-
         public string Name { get; set; }
+
+        public ICollection<Channel> Channels { get; set; }
+
+        public Server()
+        {
+            Channels = new HashSet<Channel>();
+        }
     }
 }
