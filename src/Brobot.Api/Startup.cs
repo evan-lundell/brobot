@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Brobot.Api.Authentication;
 using Brobot.Api.Contexts;
 using Microsoft.AspNetCore.Builder;
@@ -40,6 +41,7 @@ namespace Brobot.Api
             .AddApiKeySupport(options => { });
 
             services.AddScoped<IGetApiKeyQuery, DbGetApiKeyQuery>();
+            services.AddAutoMapper(typeof(Startup));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

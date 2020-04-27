@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Brobot.Api", "src\Brobot.Api\Brobot.Api.csproj", "{592F5B14-B605-467E-BDFA-2C6807213E74}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brobot.Api", "src\Brobot.Api\Brobot.Api.csproj", "{592F5B14-B605-467E-BDFA-2C6807213E74}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Brobot.Core", "src\Brobot.Core\Brobot.Core.csproj", "{7B649C77-5792-46F2-B059-8725AD65D58C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{592F5B14-B605-467E-BDFA-2C6807213E74}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{592F5B14-B605-467E-BDFA-2C6807213E74}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{592F5B14-B605-467E-BDFA-2C6807213E74}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B649C77-5792-46F2-B059-8725AD65D58C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B649C77-5792-46F2-B059-8725AD65D58C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B649C77-5792-46F2-B059-8725AD65D58C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B649C77-5792-46F2-B059-8725AD65D58C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
