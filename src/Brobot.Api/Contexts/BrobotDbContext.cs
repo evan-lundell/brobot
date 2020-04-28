@@ -15,6 +15,9 @@ namespace Brobot.Api.Contexts
         }
 
         public DbSet<Server> Servers { get; set; }
+        public DbSet<Channel> Channels { get; set; }
+        public DbSet<DiscordUser> DiscordUsers { get; set; }
+        public DbSet<DiscordUserChannel> DiscordUserChannels { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

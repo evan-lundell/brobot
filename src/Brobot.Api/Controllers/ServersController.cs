@@ -62,52 +62,132 @@ namespace Brobot.Api.Controllers
             }
         }
 
+        [HttpPost("test")]
+        public async Task<ActionResult> Test()
+        {
+            try
+            {
+                var servers = await Context.Servers.ToListAsync();
+
+                var server = servers.FirstOrDefault(s => s.ServerId == 421404457599762433);
+                if (server == null) return NotFound();
+
+                server.Name += " test";
+                await Context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError("test failed.", ex);
+            }
+        }
+
+
         [HttpPost("sync")]
         [Authorize(Roles = "Sync")]
         public async Task<ActionResult> Sync([FromBody]IEnumerable<Models.Server> servers)
         {
             try
             {
+                var userModels = servers
+                    .SelectMany(s => s.Channels)
+                    .SelectMany(c => c.DiscordUsers)
+                    .ToList();
+
                 var existingServers = await Context.Servers
                     .Include(s => s.Channels)
                     .ThenInclude(c => c.DiscordUserChannels)
                     .ThenInclude(duc => duc.DiscordUser)
                     .ToListAsync();
 
-                var serversToDelete = existingServers.Where(es => !servers.Any(s => s.ServerId == es.ServerId));
-                var channelsToDelete = new List<Entities.Channel>();
-                var discordUserChannelsToDelete = new List<Entities.DiscordUserChannel>();
+                var existingUsers = existingServers
+                    .SelectMany(es => es.Channels)
+                    .SelectMany(c => c.DiscordUserChannels)
+                    .Select(duc => duc.DiscordUser)
+                    .ToList();
 
-                var serversToAdd = new List<Entities.Server>();
-                var channelsToAdd = new List<Entities.Channel>();
-                var discordUsersToAdd = new List<Entities.DiscordUser>();
-
-                foreach (var server in servers)
+                var userEntities = new List<Entities.DiscordUser>();
+                var newUsers = new List<Entities.DiscordUser>();
+                Context.DiscordUsers.RemoveRange(existingUsers.Where(entity => !userModels.Any(model => model.DiscordUserId == entity.DiscordUserId)));
+                foreach (var userModel in userModels)
                 {
-                    var existingServer = existingServers.FirstOrDefault(es => es.ServerId == server.ServerId);
-                    if (existingServer == null)
+                    if (userEntities.Any(eu => eu.DiscordUserId == userModel.DiscordUserId))
                     {
-                        serversToAdd.Add(Mapper.Map<Entities.Server>(server));
                         continue;
                     }
 
-                    existingServer.Name = server.Name;
-                    channelsToDelete.AddRange(existingServer.Channels.Where(ec => !server.Channels.Any(c => c.ChannelId == ec.ChannelId)));
-
-                    foreach (var channel in server.Channels)
+                    var userEntity = existingUsers.FirstOrDefault(eu => eu.DiscordUserId == userModel.DiscordUserId);
+                    if (userEntity == null)
                     {
-                        var existingChannel = existingServer.Channels.FirstOrDefault(c => c.ChannelId == channel.ChannelId);
-                        if (existingChannel == null)
-                        {
-                            channelsToAdd.Add(Mapper.Map<Entities.Channel>(channel));
-                            continue;
-                        }
+                        userEntity = Mapper.Map<Entities.DiscordUser>(userModel);
+                        newUsers.Add(userEntity);
+                    }
+                    else
+                    {
+                        userEntity.Username = userModel.Username;
+                    }
 
-                        existingChannel.Name = channel.Name;
-                        discordUserChannelsToDelete.AddRange(existingChannel.DiscordUserChannels.Where(duc => !channel.DiscordUsers.Any(du => du.DiscordUserId == duc.DiscordUserId)));
+                    userEntities.Add(userEntity);
+                }
+
+                Context.Servers.RemoveRange(existingServers.Where(entity => !servers.Any(model => model.ServerId == entity.ServerId)));
+                foreach (var serverModel in servers)
+                {
+                    var serverEntity = existingServers.FirstOrDefault(entity => entity.ServerId == serverModel.ServerId);
+                    if (serverEntity == null)
+                    {
+                        serverEntity = Mapper.Map<Entities.Server>(serverModel);
+                        await Context.Servers.AddAsync(serverEntity);
+                        continue;
+                    }
+
+                    serverEntity.Name = serverModel.Name;
+
+                    var removedChannels = serverEntity.Channels
+                        .Where(entity => !serverModel.Channels.Any(model => model.ChannelId == entity.ChannelId))
+                        .ToList();
+                    foreach (var removedChannel in removedChannels)
+                    {
+                        serverEntity.Channels.Remove(removedChannel);
+                    }
+
+                    foreach (var channelModel in serverModel.Channels)
+                    {
+                        var channelEntity = serverEntity.Channels.FirstOrDefault(c => c.ChannelId == channelModel.ChannelId);
+                        if (channelEntity == null)
+                        {
+                            channelEntity = Mapper.Map<Entities.Channel>(channelModel);
+                            channelEntity.Server = serverEntity;
+                            channelEntity.ServerId = serverEntity.ServerId;
+                            await Context.Channels.AddAsync(channelEntity);
+                        }
+                        else
+                        {
+                            channelEntity.Name = channelModel.Name;
+                            Context.DiscordUserChannels.RemoveRange(
+                                channelEntity.DiscordUserChannels.Where(entity => !channelModel.DiscordUsers
+                                .Any(model => entity.DiscordUserId == model.DiscordUserId)));
+                        }
+                        
+                        foreach (var discordUserModel in channelModel.DiscordUsers)
+                        {
+                            if (!channelEntity.DiscordUserChannels.Any(duc => duc.DiscordUserId == discordUserModel.DiscordUserId))
+                            {
+                                var discordUserEntity = userEntities.FirstOrDefault(eu => eu.DiscordUserId == discordUserModel.DiscordUserId);
+                                var discordUserChannel = new Entities.DiscordUserChannel
+                                {
+                                    Channel = channelEntity,
+                                    ChannelId = channelEntity.ChannelId,
+                                    DiscordUser = discordUserEntity,
+                                    DiscordUserId = discordUserEntity?.DiscordUserId ?? 0
+                                };
+                                await Context.DiscordUserChannels.AddAsync(discordUserChannel);
+                            }
+                        }
                     }
                 }
 
+                await Context.SaveChangesAsync();
                 return Ok();
             }
             catch (Exception ex)
@@ -117,3 +197,4 @@ namespace Brobot.Api.Controllers
         }
     }
 }
+ 

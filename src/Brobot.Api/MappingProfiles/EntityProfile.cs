@@ -12,23 +12,35 @@ namespace Brobot.Api.MappingProfiles
     {
         public EntityProfile()
         {
-            CreateMap<Entities.Server, Models.Server>().ReverseMap();
+            CreateMap<Entities.Server, Models.Server>();
             CreateMap<Entities.Channel, Models.Channel>()
-                .ForMember(du => du.DiscordUsers, opt => opt.MapFrom(c => c.DiscordUserChannels));
+                .ForMember(entity => entity.DiscordUsers, opt => opt.MapFrom(model => model.DiscordUserChannels));
 
             CreateMap<Entities.DiscordUserChannel, Models.DiscordUser>()
-                .ForMember(du => du.DiscordUserId, opt => opt.MapFrom(duc => duc.DiscordUserId))
-                .ForMember(du => du.Username, opt => opt.MapFrom(duc => duc.DiscordUser.Username))
-                .ForMember(du => du.Birthdate, opt => opt.MapFrom(duc => duc.DiscordUser.Birthdate))
-                .ForMember(du => du.Timezone, opt => opt.MapFrom(duc => duc.DiscordUser.Timezone));
+                .ForMember(entity => entity.DiscordUserId, opt => opt.MapFrom(model => model.DiscordUserId))
+                .ForMember(entity => entity.Username, opt => opt.MapFrom(model => model.DiscordUser.Username))
+                .ForMember(entity => entity.Birthdate, opt => opt.MapFrom(model => model.DiscordUser.Birthdate))
+                .ForMember(entity => entity.Timezone, opt => opt.MapFrom(model => model.DiscordUser.Timezone));
 
             CreateMap<Entities.DiscordUser, Models.DiscordUser>();
 
+            CreateMap<Models.Server, Entities.Server>()
+                .AfterMap((model, entity) =>
+                {
+                    foreach (var channel in entity.Channels)
+                    {
+                        channel.Server = entity;
+                        channel.ServerId = entity.ServerId;
+                    }
+                });
+
             CreateMap<Models.Channel, Entities.Channel>()
-                .ForMember(e => e.DiscordUserChannels, opt => opt.MapFrom(c => c.DiscordUsers.Select(du => new { ChannelId = c.ChannelId, }))
+                .ForMember(entity => entity.DiscordUserChannels, opt => opt.Ignore());
 
             CreateMap<Models.DiscordUser, Entities.DiscordUserChannel>()
-    
+                .ForMember(entity => entity.DiscordUser, opt => opt.MapFrom(model => model));
+
+            CreateMap<Models.DiscordUser, Entities.DiscordUser>();
         }
     }
 }
