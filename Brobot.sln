@@ -5,7 +5,9 @@ VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brobot.Api", "src\Brobot.Api\Brobot.Api.csproj", "{592F5B14-B605-467E-BDFA-2C6807213E74}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Brobot.Core", "src\Brobot.Core\Brobot.Core.csproj", "{7B649C77-5792-46F2-B059-8725AD65D58C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brobot.Core", "src\Brobot.Core\Brobot.Core.csproj", "{7B649C77-5792-46F2-B059-8725AD65D58C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Brobot.Sync", "src\Brobot.Sync\Brobot.Sync.csproj", "{78F71661-1D4B-402F-A66D-0ECB9A4D6AB7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{7B649C77-5792-46F2-B059-8725AD65D58C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7B649C77-5792-46F2-B059-8725AD65D58C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7B649C77-5792-46F2-B059-8725AD65D58C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{78F71661-1D4B-402F-A66D-0ECB9A4D6AB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78F71661-1D4B-402F-A66D-0ECB9A4D6AB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78F71661-1D4B-402F-A66D-0ECB9A4D6AB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78F71661-1D4B-402F-A66D-0ECB9A4D6AB7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
