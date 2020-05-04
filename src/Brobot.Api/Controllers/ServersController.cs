@@ -77,6 +77,7 @@ namespace Brobot.Api.Controllers
                 var userModels = servers
                     .SelectMany(s => s.Channels)
                     .SelectMany(c => c.DiscordUsers)
+                    .Distinct()
                     .ToList();
 
                 var existingServers = await Context.Servers

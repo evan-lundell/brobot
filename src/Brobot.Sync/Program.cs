@@ -44,7 +44,7 @@ namespace Brobot.Sync
                     });
                     services.AddSingleton<DiscordSocketClient>();
 
-                    services.AddHostedService<Worker>();
+                    services.AddHostedService<SyncWorker>();
                 });
     }
 }
