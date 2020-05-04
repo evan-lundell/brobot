@@ -1,37 +1,50 @@
-﻿using Brobot.Core.Services;
-using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Net.Http;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
+using Brobot.Core.Services;
+using Discord.WebSocket;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace Brobot.Sync
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
-            new Program().MainAsync().GetAwaiter().GetResult();
+            CreateHostBuilder(args).Build().Run();
         }
 
-        public async Task MainAsync()
-        {
-            using (var services = ConfigureServices())
-            {
-                var syncService = services.GetRequiredService<SyncService>();
-                await syncService.RunAsync();
-            }
-        }
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureHostConfiguration(config =>
+                {
+                    var development = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT");
+                    var isDev = string.IsNullOrWhiteSpace(development) || development.ToLower() == "development";
 
-        private ServiceProvider ConfigureServices()
-        {
-            var services = new ServiceCollection()
-                .AddSingleton<SyncService>();
-            services.AddHttpClient<IBrobotService, BrobotService>(client =>
-            {
-                client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("BROBOT_BASEURL"));
-                client.DefaultRequestHeaders.Add("x-api-key", Environment.GetEnvironmentVariable("BROBOT_APIKEY"));
-            });
-            return services.BuildServiceProvider();
-        }
+                    if (isDev)
+                    {
+                        config.AddUserSecrets(Assembly.GetExecutingAssembly());
+                    }
+                })
+                .ConfigureServices((hostContext, services) =>
+                {
+                    var syncSettings = new SyncSettings();
+                    hostContext.Configuration.GetSection("SyncSettings").Bind(syncSettings);
+
+                    services.Configure<SyncSettings>(hostContext.Configuration.GetSection("SyncSettings"));
+                    services.AddHttpClient<IBrobotService, BrobotService>(configure =>
+                    {
+                        configure.BaseAddress = new Uri(syncSettings.BaseUrl);
+                        configure.DefaultRequestHeaders.Add("x-api-key", syncSettings.ApiKey);
+                    });
+                    services.AddSingleton<DiscordSocketClient>();
+
+                    services.AddHostedService<Worker>();
+                });
     }
 }

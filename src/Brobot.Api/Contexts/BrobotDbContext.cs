@@ -27,7 +27,7 @@ namespace Brobot.Api.Contexts
             builder.Entity<Server>()
                 .Property(s => s.Name)
                 .IsRequired(true)
-                .HasMaxLength(32);
+                .HasMaxLength(128);
 
             builder.Entity<Channel>()
                 .ToTable("Channel")
@@ -35,7 +35,7 @@ namespace Brobot.Api.Contexts
             builder.Entity<Channel>()
                 .Property(c => c.Name)
                 .IsRequired(true)
-                .HasMaxLength(32);
+                .HasMaxLength(128);
             builder.Entity<Channel>()
                 .HasOne(c => c.Server)
                 .WithMany(s => s.Channels)
@@ -48,11 +48,11 @@ namespace Brobot.Api.Contexts
             builder.Entity<DiscordUser>()
                 .Property(du => du.Username)
                 .IsRequired(true)
-                .HasMaxLength(32);
+                .HasMaxLength(128);
             builder.Entity<DiscordUser>()
                 .Property(du => du.Timezone)
                 .IsRequired(false)
-                .HasMaxLength(50);
+                .HasMaxLength(64);
 
             builder.Entity<DiscordUserChannel>()
                 .ToTable("DiscordUserChannel")

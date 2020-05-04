@@ -32,6 +32,7 @@ namespace Brobot.Api.Controllers
                     .Include(s => s.Channels)
                     .ThenInclude(c => c.DiscordUserChannels)
                     .ThenInclude(duc => duc.DiscordUser)
+                    .AsNoTracking()
                     .ToListAsync();
 
                 var serverModels = Mapper.Map<IEnumerable<Models.Server>>(serverEntities);
@@ -48,7 +49,12 @@ namespace Brobot.Api.Controllers
         {
             try
             {
-                var serverEntity = await Context.Servers.FindAsync(id);
+                var serverEntity = await Context.Servers
+                    .Include(s => s.Channels)
+                    .ThenInclude(c => c.DiscordUserChannels)
+                    .ThenInclude(duc => duc.DiscordUser)
+                    .AsNoTracking()
+                    .SingleOrDefaultAsync(s => s.ServerId == id);
                 if (serverEntity == null)
                 {
                     return NotFound();
@@ -61,27 +67,6 @@ namespace Brobot.Api.Controllers
                 return InternalServerError($"Failed to server {id}", ex);
             }
         }
-
-        [HttpPost("test")]
-        public async Task<ActionResult> Test()
-        {
-            try
-            {
-                var servers = await Context.Servers.ToListAsync();
-
-                var server = servers.FirstOrDefault(s => s.ServerId == 421404457599762433);
-                if (server == null) return NotFound();
-
-                server.Name += " test";
-                await Context.SaveChangesAsync();
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError("test failed.", ex);
-            }
-        }
-
 
         [HttpPost("sync")]
         [Authorize(Roles = "Sync")]
@@ -130,6 +115,7 @@ namespace Brobot.Api.Controllers
                     userEntities.Add(userEntity);
                 }
 
+                await Context.DiscordUsers.AddRangeAsync(newUsers);
                 Context.Servers.RemoveRange(existingServers.Where(entity => !servers.Any(model => model.ServerId == entity.ServerId)));
                 foreach (var serverModel in servers)
                 {

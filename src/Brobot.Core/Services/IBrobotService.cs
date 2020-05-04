@@ -9,7 +9,17 @@ namespace Brobot.Core.Services
 {
     public interface IBrobotService
     {
+        /// <summary>
+        /// Gets a list of all the servers
+        /// </summary>
+        /// <returns>The list of servers</returns>
         Task<IEnumerable<Server>> GetServers();
-        Task SyncServers(IEnumerable<Server> servers);
+
+        /// <summary>
+        /// Syncs the given servers
+        /// </summary>
+        /// <param name="servers">The servers to sync</param>
+        /// <returns>A value indicating whether or not the sync was successful</returns>
+        Task<bool> SyncServers(IEnumerable<Server> servers);
     }
 }

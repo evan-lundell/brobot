@@ -1,10 +1,9 @@
-{
+﻿{
   "profiles": {
     "Brobot.Sync": {
       "commandName": "Project",
       "environmentVariables": {
-        "BROBOT_BASEURL": "https://localhost:5001/api/",
-        "BROBOT_APIKEY": "881fd42b-e64e-46ce-a1e9-7d6614e80acf"
+        "DOTNET_ENVIRONMENT": "Development"
       }
     }
   }
