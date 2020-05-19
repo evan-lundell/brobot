@@ -21,7 +21,6 @@ namespace Brobot.Sync
         private readonly SyncSettings _syncSettings;
 
         private const int MaxRetries = 3;
-        private int _retryCount = 0;
 
         public SyncWorker(
             ILogger<SyncWorker> logger, 
@@ -90,28 +89,48 @@ namespace Brobot.Sync
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             // Give the application a couple seconds to finish the discord connect
-            // TODO: Clean this up
             await Task.Delay(5000, stoppingToken);
-            
+
+            int brobotServiceRetryCount = 0, discordClientRetryCount = 0;
+
             while (!stoppingToken.IsCancellationRequested)
             {
+                if (_discordClient.ConnectionState != Discord.ConnectionState.Connected)
+                {
+                    if (discordClientRetryCount >= MaxRetries)
+                    {
+                        _logger.LogCritical("Discord client max retry count met, shutting down");
+                        _applicationLifetime.StopApplication();
+                        await StopAsync(stoppingToken);
+                        break;
+                    }
+                    else
+                    {
+                        discordClientRetryCount++;
+                        await Task.Delay(30000 * brobotServiceRetryCount, stoppingToken);
+                        continue;
+                    }
+                }
+
+                discordClientRetryCount = 0;
                 var servers = GetServers();
                 var success = await _brobotService.SyncServers(servers);
 
                 if (success)
                 {
                     _logger.LogInformation("Successfully synced servers");
-                    _retryCount = 0;
+                    brobotServiceRetryCount = 0;
                 }
                 else
                 {
                     _logger.LogWarning("Failed to sync servers");
-                    _retryCount++;
-                    if (_retryCount >= MaxRetries)
+                    brobotServiceRetryCount++;
+                    if (brobotServiceRetryCount >= MaxRetries)
                     {
-                        _logger.LogCritical("Max retry count met, shutting down");
+                        _logger.LogCritical("Brobot Service max retry count met, shutting down");
                         await StopAsync(stoppingToken);
                         _applicationLifetime.StopApplication();
+                        break;
                     }
                 }
 
