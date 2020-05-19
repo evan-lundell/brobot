@@ -86,11 +86,9 @@ namespace Brobot.Api.Controllers
                     .ThenInclude(duc => duc.DiscordUser)
                     .ToListAsync();
 
-                var existingUsers = existingServers
-                    .SelectMany(es => es.Channels)
-                    .SelectMany(c => c.DiscordUserChannels)
-                    .Select(duc => duc.DiscordUser)
-                    .ToList();
+                var existingUsers = await Context.DiscordUsers
+                    .Include(du => du .DiscordUserChannels)
+                    .ToListAsync();
 
                 var userEntities = new List<Entities.DiscordUser>();
                 var newUsers = new List<Entities.DiscordUser>();
@@ -124,6 +122,36 @@ namespace Brobot.Api.Controllers
                     if (serverEntity == null)
                     {
                         serverEntity = Mapper.Map<Entities.Server>(serverModel);
+
+                        foreach (var channelModel in serverModel.Channels)
+                        {
+                            var channelEntity = serverEntity.Channels.FirstOrDefault(c => c.ChannelId == channelModel.ChannelId);
+                            if (channelEntity == null)
+                            {
+                                Logger.LogWarning($"Channel {channelModel.ChannelId} not found when creating server {serverModel.ServerId}");
+                                continue;
+                            }
+
+                            foreach (var discordUserModel in channelModel.DiscordUsers)
+                            {
+                                var discordUserEntity = userEntities.FirstOrDefault(u => u.DiscordUserId == discordUserModel.DiscordUserId);
+                                if (discordUserEntity == null)
+                                {
+                                    Logger.LogWarning($"Discord User {discordUserModel.DiscordUserId} not found when creating server {serverModel.ServerId}");
+                                    continue;
+                                }
+
+                                channelEntity.DiscordUserChannels.Add(new Entities.DiscordUserChannel
+                                {
+                                    DiscordUser = discordUserEntity,
+                                    DiscordUserId = discordUserEntity.DiscordUserId,
+                                    Channel = channelEntity,
+                                    ChannelId = channelEntity.ChannelId
+                                });
+                            }
+
+                        }
+
                         await Context.Servers.AddAsync(serverEntity);
                         continue;
                     }
