@@ -3,97 +3,108 @@ using System;
 using Brobot.Api.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Brobot.Api.Migrations
 {
     [DbContext(typeof(BrobotDbContext))]
-    [Migration("20200425192659_Initial")]
-    partial class Initial
+    [Migration("20200726185848_InitialMigration")]
+    partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.3")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
+                .HasAnnotation("ProductVersion", "3.1.6")
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             modelBuilder.Entity("Brobot.Api.Entities.Channel", b =>
                 {
                     b.Property<decimal>("ChannelId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("decimal(20,0)");
+                        .HasColumnName("id")
+                        .HasColumnType("numeric(20,0)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(32)")
-                        .HasMaxLength(32);
+                        .HasColumnName("name")
+                        .HasColumnType("character varying(128)")
+                        .HasMaxLength(128);
 
                     b.Property<decimal>("ServerId")
-                        .HasColumnType("decimal(20,0)");
+                        .HasColumnName("server_id")
+                        .HasColumnType("numeric(20,0)");
 
                     b.HasKey("ChannelId");
 
                     b.HasIndex("ServerId");
 
-                    b.ToTable("Channel");
+                    b.ToTable("channel","brobot");
                 });
 
             modelBuilder.Entity("Brobot.Api.Entities.DiscordUser", b =>
                 {
                     b.Property<decimal>("DiscordUserId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("decimal(20,0)");
+                        .HasColumnName("id")
+                        .HasColumnType("numeric(20,0)");
 
                     b.Property<DateTime?>("Birthdate")
-                        .HasColumnType("datetime2");
+                        .HasColumnName("birthdate")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Timezone")
-                        .HasColumnType("nvarchar(50)")
-                        .HasMaxLength(50);
+                        .HasColumnName("timezone")
+                        .HasColumnType("character varying(64)")
+                        .HasMaxLength(64);
 
                     b.Property<string>("Username")
                         .IsRequired()
-                        .HasColumnType("nvarchar(32)")
-                        .HasMaxLength(32);
+                        .HasColumnName("username")
+                        .HasColumnType("character varying(128)")
+                        .HasMaxLength(128);
 
                     b.HasKey("DiscordUserId");
 
-                    b.ToTable("DiscordUser");
+                    b.ToTable("discord_user","brobot");
                 });
 
             modelBuilder.Entity("Brobot.Api.Entities.DiscordUserChannel", b =>
                 {
                     b.Property<decimal>("DiscordUserId")
-                        .HasColumnType("decimal(20,0)");
+                        .HasColumnName("discord_user_id")
+                        .HasColumnType("numeric(20,0)");
 
                     b.Property<decimal>("ChannelId")
-                        .HasColumnType("decimal(20,0)");
+                        .HasColumnName("channel_id")
+                        .HasColumnType("numeric(20,0)");
 
                     b.HasKey("DiscordUserId", "ChannelId");
 
                     b.HasIndex("ChannelId");
 
-                    b.ToTable("DiscordUserChannel");
+                    b.ToTable("discord_user_channel","brobot");
                 });
 
             modelBuilder.Entity("Brobot.Api.Entities.Server", b =>
                 {
                     b.Property<decimal>("ServerId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("decimal(20,0)");
+                        .HasColumnName("id")
+                        .HasColumnType("numeric(20,0)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(32)")
-                        .HasMaxLength(32);
+                        .HasColumnName("name")
+                        .HasColumnType("character varying(128)")
+                        .HasMaxLength(128);
 
                     b.HasKey("ServerId");
 
-                    b.ToTable("Server");
+                    b.ToTable("server","brobot");
                 });
 
             modelBuilder.Entity("Brobot.Api.Entities.Channel", b =>

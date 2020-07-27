@@ -38,3 +38,7 @@ msbuild.wrn
 
 #Launch settings
 launchSettings.json
+
+# Docker Compose
+docker-compose.yml
+volumes/

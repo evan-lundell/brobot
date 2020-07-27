@@ -19,31 +19,47 @@ namespace Brobot.Api.Contexts
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.Entity<ApiKey>()
-                .ToTable("ApiKey", schema: "auth")
+                .ToTable("api_key", schema: "auth")
                 .HasKey(ak => ak.ApiKeyId);
             builder.Entity<ApiKey>()
+                .Property(ak => ak.ApiKeyId)
+                .HasColumnName("id");
+            builder.Entity<ApiKey>()
                 .Property(ak => ak.Key)
+                .HasColumnName("key")
                 .HasMaxLength(36)
                 .IsRequired(true);
             builder.Entity<ApiKey>()
                 .Property(ak => ak.CreatedDateUtc)
-                .HasDefaultValueSql("GETUTCDATE()");
+                .HasColumnName("created_date_utc")
+                .HasDefaultValueSql("now() at time zone 'utc'");
             builder.Entity<ApiKey>()
                 .Property(ak => ak.Owner)
+                .HasColumnName("owner")
                 .HasMaxLength(50)
                 .IsRequired(true);
 
             builder.Entity<ApiRole>()
-                .ToTable("ApiRole", schema: "auth")
+                .ToTable("api_role", schema: "auth")
                 .HasKey(ar => ar.ApiRoleId);
             builder.Entity<ApiRole>()
+                .Property(ar => ar.ApiRoleId)
+                .HasColumnName("id");
+            builder.Entity<ApiRole>()
                 .Property(ar => ar.Name)
+                .HasColumnName("name")
                 .IsRequired(true)
                 .HasMaxLength(20);
 
             builder.Entity<ApiKeyRole>()
-                .ToTable("ApiKeyRole", schema: "auth")
+                .ToTable("api_key_role", schema: "auth")
                 .HasKey(akr => new { akr.ApiKeyId, akr.ApiRoleId });
+            builder.Entity<ApiKeyRole>()
+                .Property(akr => akr.ApiKeyId)
+                .HasColumnName("api_key_id");
+            builder.Entity<ApiKeyRole>()
+                .Property(akr => akr.ApiRoleId)
+                .HasColumnName("api_role_id");
             builder.Entity<ApiKeyRole>()
                 .HasOne(akr => akr.ApiKey)
                 .WithMany(ak => ak.ApiKeyRoles)

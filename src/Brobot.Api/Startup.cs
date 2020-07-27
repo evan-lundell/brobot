@@ -30,8 +30,8 @@ namespace Brobot.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddDbContext<BrobotDbContext>(builder => builder.UseSqlServer(Configuration.GetConnectionString("Default")));
-            services.AddDbContext<AuthenticationDbContext>(builder => builder.UseSqlServer(Configuration.GetConnectionString("Default")));
+            services.AddDbContext<BrobotDbContext>(builder => builder.UseNpgsql(Configuration.GetConnectionString("Default")));
+            services.AddDbContext<AuthenticationDbContext>(builder => builder.UseNpgsql(Configuration.GetConnectionString("Default")));
 
             services.AddAuthentication(options =>
             {
@@ -45,7 +45,12 @@ namespace Brobot.Api
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, 
+            IWebHostEnvironment env, 
+            BrobotDbContext brobotDbContext, 
+            AuthenticationDbContext authenticationDbContext, 
+            ILogger<Startup> logger,
+            IHostApplicationLifetime applicationLifetime)
         {
             if (env.IsDevelopment())
             {
@@ -63,6 +68,19 @@ namespace Brobot.Api
             {
                 endpoints.MapControllers();
             });
+
+            int retryCount = 0;
+
+            while (!brobotDbContext.Database.CanConnect() || !authenticationDbContext.Database.CanConnect())
+            {
+                if (retryCount == 5)
+                {
+                    logger.LogError("Unabled to connect to database");
+                    applicationLifetime.StopApplication();
+                }
+            }
+            brobotDbContext.Database.Migrate();
+            authenticationDbContext.Database.Migrate();
         }
     }
 }

@@ -1,23 +1,31 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Migrations\20200425173855_Initial.cs" />
-    <Compile Remove="Migrations\20200425173855_Initial.Designer.cs" />
+    <Compile Remove="Migrations\20200723142257_InitialMigration.cs" />
+    <Compile Remove="Migrations\20200723142257_InitialMigration.Designer.cs" />
+    <Compile Remove="Migrations\20200723143831_InitialMigratino.cs" />
+    <Compile Remove="Migrations\20200723143831_InitialMigratino.Designer.cs" />
+    <Compile Remove="Migrations\20200723143845_InitialMigration.cs" />
+    <Compile Remove="Migrations\20200723143845_InitialMigration.Designer.cs" />
+    <Compile Remove="Migrations\20200726185804_InitialMigration.cs" />
+    <Compile Remove="Migrations\20200726185804_InitialMigration.Designer.cs" />
+    <Compile Remove="Migrations\AuthenticationDb\20200726185924_InitialMigration.cs" />
+    <Compile Remove="Migrations\AuthenticationDb\20200726185924_InitialMigration.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="9.0.0" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.3">
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.6">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.1.4" />
   </ItemGroup>
 
   <ItemGroup>
