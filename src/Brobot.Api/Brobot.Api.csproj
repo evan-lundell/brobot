@@ -13,6 +13,10 @@
     <Compile Remove="Migrations\20200723143845_InitialMigration.Designer.cs" />
     <Compile Remove="Migrations\20200726185804_InitialMigration.cs" />
     <Compile Remove="Migrations\20200726185804_InitialMigration.Designer.cs" />
+    <Compile Remove="Migrations\20200728152700_Responses.cs" />
+    <Compile Remove="Migrations\20200728152700_Responses.Designer.cs" />
+    <Compile Remove="Migrations\20200728152744_SeedDiscordEvents.cs" />
+    <Compile Remove="Migrations\20200728152744_SeedDiscordEvents.Designer.cs" />
     <Compile Remove="Migrations\AuthenticationDb\20200726185924_InitialMigration.cs" />
     <Compile Remove="Migrations\AuthenticationDb\20200726185924_InitialMigration.Designer.cs" />
   </ItemGroup>

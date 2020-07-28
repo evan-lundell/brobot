@@ -55,5 +55,35 @@ namespace Brobot.Core.Services
                 return false;
             }
         }
+
+        public async Task<IEnumerable<EventResponse>> GetEventResponses()
+        {
+            try
+            {
+                var response = await _client.GetStringAsync("responses");
+                var responses = JsonConvert.DeserializeObject<IEnumerable<EventResponse>>(response);
+                return responses;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to get event responses");
+                return new List<EventResponse>();
+            }
+        }
+
+        public async Task<IEnumerable<Channel>> GetChannels()
+        {
+            try
+            {
+                var response = await _client.GetStringAsync("channels");
+                var channels = JsonConvert.DeserializeObject<IEnumerable<Channel>>(response);
+                return channels;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to get channels.");
+                return new List<Channel>();
+            }
+        }
     }
 }

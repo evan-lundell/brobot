@@ -43,6 +43,25 @@ namespace Brobot.Api.Migrations
                     b.ToTable("channel","brobot");
                 });
 
+            modelBuilder.Entity("Brobot.Api.Entities.DiscordEvent", b =>
+                {
+                    b.Property<int>("DiscordEventId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnName("name")
+                        .HasColumnType("character varying(64)")
+                        .HasMaxLength(64);
+
+                    b.HasKey("DiscordEventId");
+
+                    b.ToTable("discord_event","brobot");
+                });
+
             modelBuilder.Entity("Brobot.Api.Entities.DiscordUser", b =>
                 {
                     b.Property<decimal>("DiscordUserId")
@@ -87,6 +106,42 @@ namespace Brobot.Api.Migrations
                     b.ToTable("discord_user_channel","brobot");
                 });
 
+            modelBuilder.Entity("Brobot.Api.Entities.EventResponse", b =>
+                {
+                    b.Property<int>("EventResponseId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<decimal?>("ChannelId")
+                        .HasColumnName("channel_id")
+                        .HasColumnType("numeric(20,0)");
+
+                    b.Property<int>("DiscordEventId")
+                        .HasColumnName("discord_event_id")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("MessageText")
+                        .HasColumnName("message_text")
+                        .HasColumnType("character varying(1024)")
+                        .HasMaxLength(1024);
+
+                    b.Property<string>("ResponseText")
+                        .IsRequired()
+                        .HasColumnName("response_text")
+                        .HasColumnType("character varying(1024)")
+                        .HasMaxLength(1024);
+
+                    b.HasKey("EventResponseId");
+
+                    b.HasIndex("ChannelId");
+
+                    b.HasIndex("DiscordEventId");
+
+                    b.ToTable("event_response","brobot");
+                });
+
             modelBuilder.Entity("Brobot.Api.Entities.Server", b =>
                 {
                     b.Property<decimal>("ServerId")
@@ -125,6 +180,19 @@ namespace Brobot.Api.Migrations
                     b.HasOne("Brobot.Api.Entities.DiscordUser", "DiscordUser")
                         .WithMany("DiscordUserChannels")
                         .HasForeignKey("DiscordUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Brobot.Api.Entities.EventResponse", b =>
+                {
+                    b.HasOne("Brobot.Api.Entities.Channel", "Channel")
+                        .WithMany("EventResponses")
+                        .HasForeignKey("ChannelId");
+
+                    b.HasOne("Brobot.Api.Entities.DiscordEvent", "DiscordEvent")
+                        .WithMany("EventResponses")
+                        .HasForeignKey("DiscordEventId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

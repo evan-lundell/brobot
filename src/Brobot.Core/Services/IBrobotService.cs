@@ -21,5 +21,17 @@ namespace Brobot.Core.Services
         /// <param name="servers">The servers to sync</param>
         /// <returns>A value indicating whether or not the sync was successful</returns>
         Task<bool> SyncServers(IEnumerable<Server> servers);
+
+        /// <summary>
+        /// Gets a list of all event responses
+        /// </summary>
+        /// <returns></returns>
+        Task<IEnumerable<EventResponse>> GetEventResponses();
+
+        /// <summary>
+        /// Gets a list of all channels
+        /// </summary>
+        /// <returns></returns>
+        Task<IEnumerable<Channel>> GetChannels();
     }
 }

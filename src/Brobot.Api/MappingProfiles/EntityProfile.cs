@@ -41,6 +41,9 @@ namespace Brobot.Api.MappingProfiles
                 .ForMember(entity => entity.DiscordUser, opt => opt.MapFrom(model => model));
 
             CreateMap<Models.DiscordUser, Entities.DiscordUser>();
+
+            CreateMap<Entities.EventResponse, Models.EventResponse>()
+                .ForMember(model => model.EventName, opt => opt.MapFrom(entity => entity.DiscordEvent.Name));
         }
     }
 }

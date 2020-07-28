@@ -18,6 +18,7 @@ namespace Brobot.Api.Contexts
         public DbSet<Channel> Channels { get; set; }
         public DbSet<DiscordUser> DiscordUsers { get; set; }
         public DbSet<DiscordUserChannel> DiscordUserChannels { get; set; }
+        public DbSet<EventResponse> EventResponses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -92,7 +93,49 @@ namespace Brobot.Api.Contexts
                 .WithMany(c => c.DiscordUserChannels)
                 .HasForeignKey(duc => duc.ChannelId)
                 .OnDelete(DeleteBehavior.Cascade);
-        }
+            
+            builder.Entity<DiscordEvent>()
+                .ToTable(name: "discord_event", schema: "brobot")
+                .HasKey(de => de.DiscordEventId);
+            builder.Entity<DiscordEvent>()
+                .Property(de => de.DiscordEventId)
+                .HasColumnName("id");
+            builder.Entity<DiscordEvent>()
+                .Property(de => de.Name)
+                .HasColumnName("name")
+                .IsRequired(true)
+                .HasMaxLength(64);
 
+            builder.Entity<EventResponse>()
+                .ToTable(name: "event_response", schema: "brobot")
+                .HasKey(er => er.EventResponseId);
+            builder.Entity<EventResponse>()
+                .Property(er => er.EventResponseId)
+                .HasColumnName("id");
+            builder.Entity<EventResponse>()
+                .Property(er => er.MessageText)
+                .HasColumnName("message_text")
+                .IsRequired(false)
+                .HasMaxLength(1024);
+            builder.Entity<EventResponse>()
+                .Property(er => er.ResponseText)
+                .HasColumnName("response_text")
+                .IsRequired(true)
+                .HasMaxLength(1024);
+            builder.Entity<EventResponse>()
+                .Property(er => er.ChannelId)
+                .HasColumnName("channel_id");
+            builder.Entity<EventResponse>()
+                .Property(er => er.DiscordEventId)
+                .HasColumnName("discord_event_id");
+            builder.Entity<EventResponse>()
+                .HasOne(er => er.DiscordEvent)
+                .WithMany(de => de.EventResponses)
+                .HasForeignKey(er => er.DiscordEventId);
+            builder.Entity<EventResponse>()
+                .HasOne(er => er.Channel)
+                .WithMany(c => c.EventResponses)
+                .HasForeignKey(er => er.ChannelId);
+        }
     }
 }

@@ -7,7 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brobot.Api", "src\Brobot.Ap
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brobot.Core", "src\Brobot.Core\Brobot.Core.csproj", "{7B649C77-5792-46F2-B059-8725AD65D58C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Brobot.Sync", "src\Brobot.Sync\Brobot.Sync.csproj", "{FB830EA6-A293-4826-B48A-C9E2C2A8D915}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brobot.Sync", "src\Brobot.Sync\Brobot.Sync.csproj", "{FB830EA6-A293-4826-B48A-C9E2C2A8D915}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brobot.Monitor", "src\Brobot.Monitor\Brobot.Monitor.csproj", "{638942E3-8438-4F73-97F6-920BD4517880}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{FB830EA6-A293-4826-B48A-C9E2C2A8D915}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FB830EA6-A293-4826-B48A-C9E2C2A8D915}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FB830EA6-A293-4826-B48A-C9E2C2A8D915}.Release|Any CPU.Build.0 = Release|Any CPU
+		{638942E3-8438-4F73-97F6-920BD4517880}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{638942E3-8438-4F73-97F6-920BD4517880}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{638942E3-8438-4F73-97F6-920BD4517880}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{638942E3-8438-4F73-97F6-920BD4517880}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

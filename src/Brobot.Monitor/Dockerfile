@@ -10,10 +10,10 @@ COPY src/Brobot.Monitor/Brobot.Monitor.csproj src/Brobot.Monitor/Brobot.Monitor.
 RUN dotnet restore Brobot.sln
 
 COPY . .
-WORKDIR /app/src/Brobot.Api
+WORKDIR /app/src/Brobot.Monitor
 RUN dotnet publish -c Release -o /out
 
-FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
+FROM mcr.microsoft.com/dotnet/core/runtime:3.1
 WORKDIR /app
 COPY --from=build-env /out .
-ENTRYPOINT ["dotnet", "Brobot.Api.dll"]
+ENTRYPOINT ["dotnet", "Brobot.Monitor.dll"]
