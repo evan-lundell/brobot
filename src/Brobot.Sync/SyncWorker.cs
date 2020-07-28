@@ -107,7 +107,7 @@ namespace Brobot.Sync
                     else
                     {
                         discordClientRetryCount++;
-                        await Task.Delay(30000 * brobotServiceRetryCount, stoppingToken);
+                        await Task.Delay(30000 * discordClientRetryCount, stoppingToken);
                         continue;
                     }
                 }
