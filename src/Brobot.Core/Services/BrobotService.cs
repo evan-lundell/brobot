@@ -86,5 +86,31 @@ namespace Brobot.Core.Services
                 throw new BrobotServiceException("Failed to get channels", ex);
             }
         }
+
+        public async Task<Reminder> PostReminder(Reminder reminder)
+        {
+            try
+            {
+                var content = new StringContent(JsonConvert.SerializeObject(reminder), Encoding.UTF8, "application/json");
+                var response = await _client.PostAsync("reminders", content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new BrobotServiceException($"Failed to create reminder with a status code of {response.StatusCode}");
+                }
+
+                var responseContent = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<Reminder>(responseContent);
+            }
+            catch (BrobotServiceException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to create reminder");
+                throw new BrobotServiceException("Failed to create reminder", ex);
+            }
+        }
     }
 }

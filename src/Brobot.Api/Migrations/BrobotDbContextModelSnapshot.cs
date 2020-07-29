@@ -142,6 +142,51 @@ namespace Brobot.Api.Migrations
                     b.ToTable("event_response","brobot");
                 });
 
+            modelBuilder.Entity("Brobot.Api.Entities.Reminder", b =>
+                {
+                    b.Property<int>("ReminderId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<decimal>("ChannelId")
+                        .HasColumnName("channel_id")
+                        .HasColumnType("numeric(20,0)");
+
+                    b.Property<DateTime>("CreatedDateUtc")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("created_date_utc")
+                        .HasColumnType("timestamp without time zone")
+                        .HasDefaultValueSql("now() at time zone 'utc'");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnName("message")
+                        .HasColumnType("character varying(1024)")
+                        .HasMaxLength(1024);
+
+                    b.Property<decimal>("OwnerId")
+                        .HasColumnName("owner_id")
+                        .HasColumnType("numeric(20,0)");
+
+                    b.Property<DateTime>("ReminderDateUtc")
+                        .HasColumnName("reminder_date_utc")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime?>("SentDateUtc")
+                        .HasColumnName("sent_date_utc")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.HasKey("ReminderId");
+
+                    b.HasIndex("ChannelId");
+
+                    b.HasIndex("OwnerId");
+
+                    b.ToTable("reminder","brobot");
+                });
+
             modelBuilder.Entity("Brobot.Api.Entities.Server", b =>
                 {
                     b.Property<decimal>("ServerId")
@@ -193,6 +238,21 @@ namespace Brobot.Api.Migrations
                     b.HasOne("Brobot.Api.Entities.DiscordEvent", "DiscordEvent")
                         .WithMany("EventResponses")
                         .HasForeignKey("DiscordEventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Brobot.Api.Entities.Reminder", b =>
+                {
+                    b.HasOne("Brobot.Api.Entities.Channel", "Channel")
+                        .WithMany("Reminders")
+                        .HasForeignKey("ChannelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Brobot.Api.Entities.DiscordUser", "Owner")
+                        .WithMany("Reminders")
+                        .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

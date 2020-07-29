@@ -33,5 +33,12 @@ namespace Brobot.Core.Services
         /// </summary>
         /// <returns></returns>
         Task<IEnumerable<Channel>> GetChannels();
+
+        /// <summary>
+        /// Creates a new reminder
+        /// </summary>
+        /// <param name="reminder">The reminder to be saved</param>
+        /// <returns></returns>
+        Task<Reminder> PostReminder(Reminder reminder);
     }
 }

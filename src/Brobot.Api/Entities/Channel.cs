@@ -15,11 +15,13 @@ namespace Brobot.Api.Entities
 
         public ICollection<DiscordUserChannel> DiscordUserChannels { get; set; }
         public ICollection<EventResponse> EventResponses { get; set; }
+        public ICollection<Reminder> Reminders { get; set; }
 
         public Channel()
         {
             DiscordUserChannels = new HashSet<DiscordUserChannel>();
             EventResponses = new HashSet<EventResponse>();
+            Reminders = new HashSet<Reminder>();
         }
     }
 }

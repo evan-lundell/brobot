@@ -61,6 +61,11 @@ namespace Brobot.Monitor
             }
         }
 
+        public async override Task StopAsync(CancellationToken cancellationToken)
+        {
+            _discordClient.Log -= LogDiscordMessage;
+            await base.StopAsync(cancellationToken);
+        }
         private async Task MessageDeleted(Cacheable<IMessage, ulong> cachedMessage, ISocketMessageChannel channel)
         {
             try

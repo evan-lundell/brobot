@@ -44,6 +44,8 @@ namespace Brobot.Api.MappingProfiles
 
             CreateMap<Entities.EventResponse, Models.EventResponse>()
                 .ForMember(model => model.EventName, opt => opt.MapFrom(entity => entity.DiscordEvent.Name));
+
+            CreateMap<Models.Reminder, Entities.Reminder>();
         }
     }
 }

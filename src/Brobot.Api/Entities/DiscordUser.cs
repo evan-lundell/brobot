@@ -13,10 +13,12 @@ namespace Brobot.Api.Entities
         public string Timezone { get; set; }
 
         public ICollection<DiscordUserChannel> DiscordUserChannels { get; set; }
+        public ICollection<Reminder> Reminders { get; set; }
 
         public DiscordUser()
         {
             DiscordUserChannels = new HashSet<DiscordUserChannel>();
+            Reminders = new HashSet<Reminder>();
         }
     }
 }

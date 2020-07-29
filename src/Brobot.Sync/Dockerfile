@@ -6,6 +6,7 @@ COPY src/Brobot.Core/Brobot.Core.csproj src/Brobot.Core/Brobot.Core.csproj
 COPY src/Brobot.Api/Brobot.Api.csproj src/Brobot.Api/Brobot.Api.csproj
 COPY src/Brobot.Sync/Brobot.Sync.csproj src/Brobot.Sync/Brobot.Sync.csproj
 COPY src/Brobot.Monitor/Brobot.Monitor.csproj src/Brobot.Monitor/Brobot.Monitor.csproj
+COPY src/Brobot.Commands/Brobot.Commands.csproj src/Brobot.Commands/Brobot.Commands.csproj
 
 RUN dotnet restore Brobot.sln
 

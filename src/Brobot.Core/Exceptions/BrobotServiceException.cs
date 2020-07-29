@@ -6,6 +6,11 @@ namespace Brobot.Core.Exceptions
 {
     public class BrobotServiceException : Exception
     {
+        public BrobotServiceException(string message)
+            : base(message)
+        {
+        }
+
         public BrobotServiceException(string message, Exception innerException)
             : base(message, innerException)
         {

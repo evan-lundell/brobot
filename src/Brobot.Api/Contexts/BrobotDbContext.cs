@@ -19,6 +19,7 @@ namespace Brobot.Api.Contexts
         public DbSet<DiscordUser> DiscordUsers { get; set; }
         public DbSet<DiscordUserChannel> DiscordUserChannels { get; set; }
         public DbSet<EventResponse> EventResponses { get; set; }
+        public DbSet<Reminder> Reminders { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -136,6 +137,34 @@ namespace Brobot.Api.Contexts
                 .HasOne(er => er.Channel)
                 .WithMany(c => c.EventResponses)
                 .HasForeignKey(er => er.ChannelId);
+
+            builder.Entity<Reminder>()
+                .ToTable(name: "reminder", schema: "brobot")
+                .HasKey(r => r.ReminderId);
+            builder.Entity<Reminder>()
+                .Property(r => r.ReminderId)
+                .HasColumnName("id");
+            builder.Entity<Reminder>()
+                .Property(r => r.OwnerId)
+                .HasColumnName("owner_id");
+            builder.Entity<Reminder>()
+                .Property(r => r.ChannelId)
+                .HasColumnName("channel_id");
+            builder.Entity<Reminder>()
+                .Property(r => r.Message)
+                .HasColumnName("message")
+                .IsRequired(true)
+                .HasMaxLength(1024);
+            builder.Entity<Reminder>()
+                .Property(r => r.CreatedDateUtc)
+                .HasColumnName("created_date_utc")
+                .HasDefaultValueSql("now() at time zone 'utc'");
+            builder.Entity<Reminder>()
+                .Property(r => r.ReminderDateUtc)
+                .HasColumnName("reminder_date_utc");
+            builder.Entity<Reminder>()
+                .Property(r => r.SentDateUtc)
+                .HasColumnName("sent_date_utc");
         }
     }
 }
