@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Brobot.Core.Exceptions;
 using Brobot.Core.Models;
 using Brobot.Core.Services;
 using Discord;
@@ -19,19 +20,24 @@ namespace Brobot.Monitor
         private readonly DiscordSocketClient _discordClient;
         private readonly IBrobotService _brobotService;
         private readonly MonitorSettings _monitorSettings;
+        private readonly IHostApplicationLifetime _applicationLifetime;
 
         private List<Channel> _channels;
         private Dictionary<ulong, Dictionary<string, List<EventResponse>>> _eventResponses;
 
+        private const int _maxRetries = 3;
+
         public MonitorWorker(ILogger<MonitorWorker> logger, 
             DiscordSocketClient discordClient, 
             IBrobotService brobotService,
-            IOptions<MonitorSettings> monitorSettings)
+            IOptions<MonitorSettings> monitorSettings,
+            IHostApplicationLifetime applicationLifetime)
         {
             _logger = logger;
             _discordClient = discordClient;
             _brobotService = brobotService;
             _monitorSettings = monitorSettings.Value;
+            _applicationLifetime = applicationLifetime;
             _eventResponses = new Dictionary<ulong, Dictionary<string, List<EventResponse>>>();
             _channels = new List<Channel>();
         }
@@ -124,14 +130,35 @@ namespace Brobot.Monitor
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            int retryCount = 0;
             while (!stoppingToken.IsCancellationRequested)
             {
-                _channels.Clear();
-                _channels.AddRange(await _brobotService.GetChannels());
-                var responses = await _brobotService.GetEventResponses();
-                SetEventResponses(responses);
+                try
+                {
+                    _channels.Clear();
+                    _channels.AddRange(await _brobotService.GetChannels());
+                    var responses = await _brobotService.GetEventResponses();
+                    SetEventResponses(responses);
 
-                await Task.Delay(60000, stoppingToken);
+                    retryCount = 0;
+                    await Task.Delay(60000, stoppingToken);
+                }
+                catch (BrobotServiceException)
+                {
+                    if (retryCount > _maxRetries)
+                    {
+                        _logger.LogCritical("Brobot service max retry count met, shutting down.");
+                        _applicationLifetime.StopApplication();
+                        await StopAsync(stoppingToken);
+                        break;
+                    }
+                    else
+                    {
+                        retryCount++;
+                        _logger.LogWarning($"Brobot service failed. Trying again in {retryCount * 10} seconds.");
+                        await Task.Delay(10000 * retryCount, stoppingToken);
+                    }
+                }
             }
         }
 

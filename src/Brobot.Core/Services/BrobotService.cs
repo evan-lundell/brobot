@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Brobot.Core.Exceptions;
 using Brobot.Core.Models;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -31,7 +32,7 @@ namespace Brobot.Core.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to get servers");
-                return new List<Server>();
+                throw new BrobotServiceException("Failed to get servers", ex);
             }
         }
 
@@ -67,7 +68,7 @@ namespace Brobot.Core.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to get event responses");
-                return new List<EventResponse>();
+                throw new BrobotServiceException("Failed to get event responses", ex);
             }
         }
 
@@ -82,7 +83,7 @@ namespace Brobot.Core.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to get channels.");
-                return new List<Channel>();
+                throw new BrobotServiceException("Failed to get channels", ex);
             }
         }
     }
