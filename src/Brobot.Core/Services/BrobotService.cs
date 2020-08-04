@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using Brobot.Core.Exceptions;
 using Brobot.Core.Models;
 using Microsoft.Extensions.Logging;
@@ -110,6 +112,93 @@ namespace Brobot.Core.Services
             {
                 _logger.LogError(ex, "Failed to create reminder");
                 throw new BrobotServiceException("Failed to create reminder", ex);
+            }
+        }
+
+        public async Task<IEnumerable<Job>> GetJobs()
+        {
+            try
+            {
+                var response = await _client.GetStringAsync("jobs");
+                return JsonConvert.DeserializeObject<IEnumerable<Job>>(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to get jobs");
+                throw new BrobotServiceException("Failed to get jobs", ex);
+            }
+        }
+
+        public async Task<IEnumerable<DiscordUser>> GetDiscordUsersForChannel(ulong channelId)
+        {
+            try
+            {
+                var response = await _client.GetStringAsync($"channels/{channelId}/discordusers");
+                return JsonConvert.DeserializeObject<IEnumerable<DiscordUser>>(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Failed to get discord users for channel {channelId}");
+                throw new BrobotServiceException($"Failed to get discord users for channel {channelId}", ex);
+            }
+        }
+
+        public async Task<IEnumerable<Reminder>> GetReminders(ulong? channelId = null, DateTime? reminderDateUtc = null)
+        {
+            try
+            {
+                var queryString = string.Empty;
+                List<string> queryParams = new List<string>();
+
+                if (channelId.HasValue)
+                {
+                    queryParams.Add($"channelId={channelId.Value.ToString()}");
+                }
+
+                if (reminderDateUtc.HasValue)
+                {
+                    // We don't want to include seconds for the reminder check
+                    queryParams.Add($"reminderDateUtc={reminderDateUtc.Value.ToString("yyyy-MM-ddTHH:mm")}");
+                }
+
+                if (queryParams.Count > 0)
+                {
+                    queryString = string.Concat("?", string.Join("&", queryParams));
+                }
+
+                var response = await _client.GetStringAsync($"reminders{queryString}");
+                return JsonConvert.DeserializeObject<IEnumerable<Models.Reminder>>(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to get reminders");
+                throw new BrobotServiceException("Failed to get reminders");
+            }
+        }
+
+        public async Task<Reminder> UpdateReminder(Reminder reminder)
+        {
+            try
+            {
+                var content = new StringContent(JsonConvert.SerializeObject(reminder), Encoding.UTF8, "application/json");
+                var response = await _client.PutAsync($"reminders/{reminder.ReminderId}", content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new BrobotServiceException($"Failed to update reminder {reminder.ReminderId} with a status code of {response.StatusCode}");
+                }
+
+                var updatedReminderString = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<Reminder>(updatedReminderString);
+            }
+            catch (BrobotServiceException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Failed to update reminder {reminder.ReminderId}");
+                throw new BrobotServiceException($"Failed to update reminder {reminder.ReminderId}", ex);
             }
         }
     }

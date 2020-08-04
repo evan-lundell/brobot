@@ -45,7 +45,14 @@ namespace Brobot.Api.MappingProfiles
             CreateMap<Entities.EventResponse, Models.EventResponse>()
                 .ForMember(model => model.EventName, opt => opt.MapFrom(entity => entity.DiscordEvent.Name));
 
-            CreateMap<Models.Reminder, Entities.Reminder>();
+            CreateMap<Models.Reminder, Entities.Reminder>().ReverseMap();
+
+            CreateMap<Entities.JobParameterDefinition, Models.JobParameterDefinition>();
+            CreateMap<Entities.JobDefinition, Models.JobDefinition>();
+            CreateMap<Entities.JobParameter, Models.JobParameter>()
+                .ForMember(model => model.Name, opt => opt.MapFrom(entity => entity.JobParameterDefinition.Name));
+            CreateMap<Entities.Job, Models.Job>()
+                .ForMember(model => model.Channels, opt => opt.MapFrom(entity => entity.JobChannels.Select(jc => jc.Channel)));
         }
     }
 }

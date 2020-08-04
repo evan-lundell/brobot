@@ -20,6 +20,7 @@ namespace Brobot.Api.Contexts
         public DbSet<DiscordUserChannel> DiscordUserChannels { get; set; }
         public DbSet<EventResponse> EventResponses { get; set; }
         public DbSet<Reminder> Reminders { get; set; }
+        public DbSet<Job> Jobs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -132,11 +133,13 @@ namespace Brobot.Api.Contexts
             builder.Entity<EventResponse>()
                 .HasOne(er => er.DiscordEvent)
                 .WithMany(de => de.EventResponses)
-                .HasForeignKey(er => er.DiscordEventId);
+                .HasForeignKey(er => er.DiscordEventId)
+                .OnDelete(DeleteBehavior.Cascade);
             builder.Entity<EventResponse>()
                 .HasOne(er => er.Channel)
                 .WithMany(c => c.EventResponses)
-                .HasForeignKey(er => er.ChannelId);
+                .HasForeignKey(er => er.ChannelId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<Reminder>()
                 .ToTable(name: "reminder", schema: "brobot")
@@ -165,6 +168,144 @@ namespace Brobot.Api.Contexts
             builder.Entity<Reminder>()
                 .Property(r => r.SentDateUtc)
                 .HasColumnName("sent_date_utc");
+
+            builder.Entity<JobDefinition>()
+                .ToTable(name: "job_definition", schema: "brobot")
+                .HasKey(jd => jd.JobDefinitionId);
+            builder.Entity<JobDefinition>()
+                .Property(jd => jd.JobDefinitionId)
+                .HasColumnName("id");
+            builder.Entity<JobDefinition>()
+                .Property(jd => jd.Name)
+                .HasColumnName("name")
+                .IsRequired(true)
+                .HasMaxLength(32);
+            builder.Entity<JobDefinition>()
+                .Property(jd => jd.Description)
+                .HasColumnName("description")
+                .IsRequired(false)
+                .HasMaxLength(1024);
+
+            builder.Entity<JobParameterDefinition>()
+                .ToTable(name: "job_parameter_definition", schema: "brobot")
+                .HasKey(jpd => jpd.JobParameterDefinitionId);
+            builder.Entity<JobParameterDefinition>()
+                .Property(jpd => jpd.JobParameterDefinitionId)
+                .HasColumnName("id");
+            builder.Entity<JobParameterDefinition>()
+                .Property(jpd => jpd.Name)
+                .HasColumnName("name")
+                .HasMaxLength(32)
+                .IsRequired(true);
+            builder.Entity<JobParameterDefinition>()
+                .Property(jpd => jpd.Description)
+                .HasColumnName("description")
+                .IsRequired(false)
+                .HasMaxLength(1024);
+            builder.Entity<JobParameterDefinition>()
+                .Property(jpd => jpd.IsRequired)
+                .HasColumnName("is_required");
+            builder.Entity<JobParameterDefinition>()
+                .Property(jpd => jpd.UserConfigurable)
+                .HasColumnName("user_configurable");
+            builder.Entity<JobParameterDefinition>()
+                .Property(jpd => jpd.DataType)
+                .IsRequired(true)
+                .HasMaxLength(16)
+                .HasColumnName("data_type");
+            builder.Entity<JobParameterDefinition>()
+                .Property(jpd => jpd.JobDefinitionId)
+                .HasColumnName("job_definition_id");
+            builder.Entity<JobParameterDefinition>()
+                .HasOne(jpd => jpd.JobDefinition)
+                .WithMany(jd => jd.JobParameterDefinitions)
+                .HasForeignKey(jpd => jpd.JobDefinitionId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<Job>()
+                .ToTable(name: "job", schema: "brobot")
+                .HasKey(j => j.JobId);
+            builder.Entity<Job>()
+                .Property(j => j.JobId)
+                .HasColumnName("id");
+            builder.Entity<Job>()
+                .Property(j => j.Name)
+                .HasColumnName("name")
+                .IsRequired(true)
+                .HasMaxLength(64);
+            builder.Entity<Job>()
+                .Property(j => j.Description)
+                .HasColumnName("description")
+                .HasMaxLength(1024)
+                .IsRequired(false);
+            builder.Entity<Job>()
+                .Property(j => j.JobDefinitionId)
+                .HasColumnName("job_definition_id");
+            builder.Entity<Job>()
+                .Property(j => j.CronTrigger)
+                .HasColumnName("cron_trigger")
+                .IsRequired(true)
+                .HasMaxLength(16);
+            builder.Entity<Job>()
+                .Property(j => j.CreatedDateUtc)
+                .HasColumnName("created_date_utc")
+                .HasDefaultValueSql("now() at time zone 'utc'");
+            builder.Entity<Job>()
+                .Property(j => j.ModifiedDateUtc)
+                .HasColumnName("modified_date_utc");
+            builder.Entity<Job>()
+                .HasOne(j => j.JobDefinition)
+                .WithMany(jd => jd.Jobs)
+                .HasForeignKey(j => j.JobDefinitionId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<JobParameter>()
+                .ToTable(name: "job_parameter", schema: "brobot")
+                .HasKey(jp => jp.JobParameterId);
+            builder.Entity<JobParameter>()
+                .Property(jp => jp.JobParameterId)
+                .HasColumnName("id");
+            builder.Entity<JobParameter>()
+                .Property(jp => jp.Value)
+                .HasColumnName("value")
+                .IsRequired(true)
+                .HasMaxLength(1024);
+            builder.Entity<JobParameter>()
+                .Property(jp => jp.JobId)
+                .HasColumnName("job_id");
+            builder.Entity<JobParameter>()
+                .Property(jp => jp.JobParameterDefinitionId)
+                .HasColumnName("job_parameter_definition_id");
+            builder.Entity<JobParameter>()
+                .HasOne(jp => jp.Job)
+                .WithMany(j => j.JobParameters)
+                .HasForeignKey(jp => jp.JobId)
+                .OnDelete(DeleteBehavior.Cascade);
+            builder.Entity<JobParameter>()
+                .HasOne(jp => jp.JobParameterDefinition)
+                .WithMany(jpd => jpd.JobParameters)
+                .HasForeignKey(jp => jp.JobParameterDefinitionId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<JobChannel>()
+                .ToTable(name: "job_channel", schema: "brobot")
+                .HasKey(jc => new { jc.ChannelId, jc.JobId });
+            builder.Entity<JobChannel>()
+                .Property(jc => jc.JobId)
+                .HasColumnName("job_id");
+            builder.Entity<JobChannel>()
+                .Property(jc => jc.ChannelId)
+                .HasColumnName("channel_id");
+            builder.Entity<JobChannel>()
+                .HasOne(jc => jc.Job)
+                .WithMany(j => j.JobChannels)
+                .HasForeignKey(jc => jc.JobId)
+                .OnDelete(DeleteBehavior.Cascade);
+            builder.Entity<JobChannel>()
+                .HasOne(jc => jc.Channel)
+                .WithMany(c => c.JobChannels)
+                .HasForeignKey(jc => jc.ChannelId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

@@ -12,10 +12,10 @@ COPY src/Brobot.Jobs/Brobot.Jobs.csproj src/Brobot.Jobs/Brobot.Jobs.csproj
 RUN dotnet restore Brobot.sln
 
 COPY . .
-WORKDIR /app/src/Brobot.Sync
+WORKDIR /app/src/Brobot.Jobs
 RUN dotnet publish -c Release -o /out
 
 FROM mcr.microsoft.com/dotnet/core/runtime:3.1
 WORKDIR /app
 COPY --from=build-env /out .
-ENTRYPOINT ["dotnet", "Brobot.Sync.dll"]
+ENTRYPOINT ["dotnet", "Brobot.Jobs.dll"]

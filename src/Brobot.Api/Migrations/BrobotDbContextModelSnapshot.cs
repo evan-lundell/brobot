@@ -142,6 +142,168 @@ namespace Brobot.Api.Migrations
                     b.ToTable("event_response","brobot");
                 });
 
+            modelBuilder.Entity("Brobot.Api.Entities.Job", b =>
+                {
+                    b.Property<int>("JobId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<DateTime>("CreatedDateUtc")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("created_date_utc")
+                        .HasColumnType("timestamp without time zone")
+                        .HasDefaultValueSql("now() at time zone 'utc'");
+
+                    b.Property<string>("CronTrigger")
+                        .IsRequired()
+                        .HasColumnName("cron_trigger")
+                        .HasColumnType("character varying(16)")
+                        .HasMaxLength(16);
+
+                    b.Property<string>("Description")
+                        .HasColumnName("description")
+                        .HasColumnType("character varying(1024)")
+                        .HasMaxLength(1024);
+
+                    b.Property<int>("JobDefinitionId")
+                        .HasColumnName("job_definition_id")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("ModifiedDateUtc")
+                        .HasColumnName("modified_date_utc")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnName("name")
+                        .HasColumnType("character varying(64)")
+                        .HasMaxLength(64);
+
+                    b.HasKey("JobId");
+
+                    b.HasIndex("JobDefinitionId");
+
+                    b.ToTable("job","brobot");
+                });
+
+            modelBuilder.Entity("Brobot.Api.Entities.JobChannel", b =>
+                {
+                    b.Property<decimal>("ChannelId")
+                        .HasColumnName("channel_id")
+                        .HasColumnType("numeric(20,0)");
+
+                    b.Property<int>("JobId")
+                        .HasColumnName("job_id")
+                        .HasColumnType("integer");
+
+                    b.HasKey("ChannelId", "JobId");
+
+                    b.HasIndex("JobId");
+
+                    b.ToTable("job_channel","brobot");
+                });
+
+            modelBuilder.Entity("Brobot.Api.Entities.JobDefinition", b =>
+                {
+                    b.Property<int>("JobDefinitionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<string>("Description")
+                        .HasColumnName("description")
+                        .HasColumnType("character varying(1024)")
+                        .HasMaxLength(1024);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnName("name")
+                        .HasColumnType("character varying(32)")
+                        .HasMaxLength(32);
+
+                    b.HasKey("JobDefinitionId");
+
+                    b.ToTable("job_definition","brobot");
+                });
+
+            modelBuilder.Entity("Brobot.Api.Entities.JobParameter", b =>
+                {
+                    b.Property<int>("JobParameterId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<int>("JobId")
+                        .HasColumnName("job_id")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("JobParameterDefinitionId")
+                        .HasColumnName("job_parameter_definition_id")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnName("value")
+                        .HasColumnType("character varying(1024)")
+                        .HasMaxLength(1024);
+
+                    b.HasKey("JobParameterId");
+
+                    b.HasIndex("JobId");
+
+                    b.HasIndex("JobParameterDefinitionId");
+
+                    b.ToTable("job_parameter","brobot");
+                });
+
+            modelBuilder.Entity("Brobot.Api.Entities.JobParameterDefinition", b =>
+                {
+                    b.Property<int>("JobParameterDefinitionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<string>("DataType")
+                        .IsRequired()
+                        .HasColumnName("data_type")
+                        .HasColumnType("character varying(16)")
+                        .HasMaxLength(16);
+
+                    b.Property<string>("Description")
+                        .HasColumnName("description")
+                        .HasColumnType("character varying(1024)")
+                        .HasMaxLength(1024);
+
+                    b.Property<bool>("IsRequired")
+                        .HasColumnName("is_required")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("JobDefinitionId")
+                        .HasColumnName("job_definition_id")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnName("name")
+                        .HasColumnType("character varying(32)")
+                        .HasMaxLength(32);
+
+                    b.Property<bool>("UserConfigurable")
+                        .HasColumnName("user_configurable")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("JobParameterDefinitionId");
+
+                    b.HasIndex("JobDefinitionId");
+
+                    b.ToTable("job_parameter_definition","brobot");
+                });
+
             modelBuilder.Entity("Brobot.Api.Entities.Reminder", b =>
                 {
                     b.Property<int>("ReminderId")
@@ -233,11 +395,60 @@ namespace Brobot.Api.Migrations
                 {
                     b.HasOne("Brobot.Api.Entities.Channel", "Channel")
                         .WithMany("EventResponses")
-                        .HasForeignKey("ChannelId");
+                        .HasForeignKey("ChannelId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("Brobot.Api.Entities.DiscordEvent", "DiscordEvent")
                         .WithMany("EventResponses")
                         .HasForeignKey("DiscordEventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Brobot.Api.Entities.Job", b =>
+                {
+                    b.HasOne("Brobot.Api.Entities.JobDefinition", "JobDefinition")
+                        .WithMany("Jobs")
+                        .HasForeignKey("JobDefinitionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Brobot.Api.Entities.JobChannel", b =>
+                {
+                    b.HasOne("Brobot.Api.Entities.Channel", "Channel")
+                        .WithMany("JobChannels")
+                        .HasForeignKey("ChannelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Brobot.Api.Entities.Job", "Job")
+                        .WithMany("JobChannels")
+                        .HasForeignKey("JobId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Brobot.Api.Entities.JobParameter", b =>
+                {
+                    b.HasOne("Brobot.Api.Entities.Job", "Job")
+                        .WithMany("JobParameters")
+                        .HasForeignKey("JobId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Brobot.Api.Entities.JobParameterDefinition", "JobParameterDefinition")
+                        .WithMany("JobParameters")
+                        .HasForeignKey("JobParameterDefinitionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Brobot.Api.Entities.JobParameterDefinition", b =>
+                {
+                    b.HasOne("Brobot.Api.Entities.JobDefinition", "JobDefinition")
+                        .WithMany("JobParameterDefinitions")
+                        .HasForeignKey("JobDefinitionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

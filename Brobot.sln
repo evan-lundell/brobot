@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brobot.Monitor", "src\Brobo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Brobot.Commands", "src\Brobot.Commands\Brobot.Commands.csproj", "{ECC7F426-49F8-4BE4-90BA-C9ADA65DE1F5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Brobot.Jobs", "src\Brobot.Jobs\Brobot.Jobs.csproj", "{43C4CC11-14C9-4943-BCBF-A6FC7DA56539}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{ECC7F426-49F8-4BE4-90BA-C9ADA65DE1F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ECC7F426-49F8-4BE4-90BA-C9ADA65DE1F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ECC7F426-49F8-4BE4-90BA-C9ADA65DE1F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43C4CC11-14C9-4943-BCBF-A6FC7DA56539}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43C4CC11-14C9-4943-BCBF-A6FC7DA56539}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43C4CC11-14C9-4943-BCBF-A6FC7DA56539}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43C4CC11-14C9-4943-BCBF-A6FC7DA56539}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -40,5 +40,33 @@ namespace Brobot.Core.Services
         /// <param name="reminder">The reminder to be saved</param>
         /// <returns></returns>
         Task<Reminder> PostReminder(Reminder reminder);
+
+        /// <summary>
+        /// Gets the configured jobs
+        /// </summary>
+        /// <returns>The list of jobs</returns>
+        Task<IEnumerable<Job>> GetJobs();
+
+        /// <summary>
+        /// Gets a list of Discord users for a given channel
+        /// </summary>
+        /// <param name="channelId">The channel id</param>
+        /// <returns>The discord users for the given channel</returns>
+        Task<IEnumerable<DiscordUser>> GetDiscordUsersForChannel(ulong channelId);
+
+        /// <summary>
+        /// Get remidners
+        /// </summary>
+        /// <param name="channelId">Optional channel id parameter</param>
+        /// <param name="reminderDateUtc">Optional reminder date parameter</param>
+        /// <returns>The reminders</returns>
+        Task<IEnumerable<Reminder>> GetReminders(ulong? channelId = null, DateTime? reminderDateUtc = null);
+
+        /// <summary>
+        /// Updates a reminder
+        /// </summary>
+        /// <param name="reminder">The reminder to be updated</param>
+        /// <returns>The updated reminder</returns>
+        Task<Reminder> UpdateReminder(Reminder reminder);
     }
 }

@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Models = Brobot.Core.Models;
 using Entities = Brobot.Api.Entities;
 using TimeZoneConverter;
+using Microsoft.EntityFrameworkCore;
 
 namespace Brobot.Api.Controllers
 {
@@ -21,6 +22,34 @@ namespace Brobot.Api.Controllers
         public RemindersController(BrobotDbContext context, ILogger<RemindersController> logger, IMapper mapper) 
             : base(context, logger, mapper)
         {
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Models.Reminder>>> GetReminders([FromQuery]ulong? channelId, [FromQuery]DateTime? reminderDateUtc)
+        {
+            try
+            {
+                var remindersQuery = Context.Reminders
+                    .AsNoTracking()
+                    .AsQueryable();
+
+                if (channelId.HasValue)
+                {
+                    remindersQuery = remindersQuery.Where(r => r.ChannelId == channelId.Value);
+                }
+
+                if (reminderDateUtc.HasValue)
+                {
+                    remindersQuery = remindersQuery.Where(r => r.ReminderDateUtc == reminderDateUtc.Value);
+                }
+
+                var reminders = await remindersQuery.ToListAsync();
+                return Ok(Mapper.Map<IEnumerable<Entities.Reminder>, IEnumerable<Models.Reminder>>(reminders));
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError("Failed to get reminders", ex);
+            }
         }
 
         [HttpPost]
@@ -56,6 +85,33 @@ namespace Brobot.Api.Controllers
             catch (Exception ex)
             {
                 return InternalServerError("Failed to post reminder.", ex);
+            }
+        }
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult<Models.Reminder>> UpdateReminder(int id, [FromBody]Models.Reminder reminder)
+        {
+            try
+            {
+                var existingReminder = await Context.Reminders.FindAsync(id);
+                if (existingReminder == null)
+                {
+                    return NotFound();
+                }
+
+                existingReminder.ChannelId = reminder.ChannelId;
+                existingReminder.Message = reminder.Message;
+                existingReminder.OwnerId = reminder.OwnerId;
+                existingReminder.SentDateUtc = reminder.SentDateUtc;
+                existingReminder.ReminderDateUtc = reminder.ReminderDateUtc;
+
+                await Context.SaveChangesAsync();
+
+                return Ok(Mapper.Map<Entities.Reminder, Models.Reminder>(existingReminder));
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError("Failed to update reminder", ex);
             }
         }
     }

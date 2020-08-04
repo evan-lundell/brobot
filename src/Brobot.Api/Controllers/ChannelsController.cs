@@ -36,5 +36,30 @@ namespace Brobot.Api.Controllers
                 return InternalServerError("Failed to get channels.", ex);
             }
         }
+
+        [HttpGet("{channelId}/discordusers")]
+        public async Task<ActionResult<IEnumerable<Models.DiscordUser>>> GetChannelDiscordUsers(ulong channelId)
+        {
+            try
+            {
+                var channel = await Context.Channels
+                    .AsNoTracking()
+                    .Include(c => c.DiscordUserChannels)
+                    .ThenInclude(duc => duc.DiscordUser)
+                    .SingleOrDefaultAsync(c => c.ChannelId == channelId);
+                
+                if (channel == null)
+                {
+                    return NotFound();
+                }
+
+                var discordUsers = Mapper.Map<IEnumerable<Entities.DiscordUser>, IEnumerable<Models.DiscordUser>>(channel.DiscordUserChannels.Select(duc => duc.DiscordUser));
+                return Ok(discordUsers);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError($"Failed to get discord users for channel {channelId}", ex);
+            }
+        }
     }
 }

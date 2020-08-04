@@ -17,6 +17,16 @@
     <Compile Remove="Migrations\20200728152700_Responses.Designer.cs" />
     <Compile Remove="Migrations\20200728152744_SeedDiscordEvents.cs" />
     <Compile Remove="Migrations\20200728152744_SeedDiscordEvents.Designer.cs" />
+    <Compile Remove="Migrations\20200801174000_Jobs.cs" />
+    <Compile Remove="Migrations\20200801174000_Jobs.Designer.cs" />
+    <Compile Remove="Migrations\20200801174317_Jobs.cs" />
+    <Compile Remove="Migrations\20200801174317_Jobs.Designer.cs" />
+    <Compile Remove="Migrations\20200801174505_SeedJobDefinitions.cs" />
+    <Compile Remove="Migrations\20200801174505_SeedJobDefinitions.Designer.cs" />
+    <Compile Remove="Migrations\20200801205310_Jobs.cs" />
+    <Compile Remove="Migrations\20200801205310_Jobs.Designer.cs" />
+    <Compile Remove="Migrations\20200801205438_SeedJobDefinitions.cs" />
+    <Compile Remove="Migrations\20200801205438_SeedJobDefinitions.Designer.cs" />
     <Compile Remove="Migrations\AuthenticationDb\20200726185924_InitialMigration.cs" />
     <Compile Remove="Migrations\AuthenticationDb\20200726185924_InitialMigration.Designer.cs" />
   </ItemGroup>
