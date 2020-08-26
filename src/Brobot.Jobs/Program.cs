@@ -43,7 +43,6 @@ namespace Brobot.Jobs
                     });
 
                     services.AddSingleton<DiscordSocketClient>();
-
                     services.AddHostedService<JobsWorker>();
                 });
     }
