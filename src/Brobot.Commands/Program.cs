@@ -44,6 +44,11 @@ namespace Brobot.Commands
                         configure.DefaultRequestHeaders.Add("x-api-key", commandsSettings.ApiKey);
                     });
 
+                    services.AddHttpClient<IRandomFactService, RandomFactService>(configure =>
+                    {
+                        configure.BaseAddress = new Uri("https://uselessfacts.jsph.pl/");
+                    });
+
                     services.AddSingleton<DiscordSocketClient>();
                     services.AddSingleton<CommandService>();
                     services.AddSingleton<CommandHandlingService>();
