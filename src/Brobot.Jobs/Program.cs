@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Brobot.Core.Services;
+using Brobot.Jobs.Services;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -40,6 +41,12 @@ namespace Brobot.Jobs
                     {
                         configure.BaseAddress = new Uri(jobsSettings.BaseUrl);
                         configure.DefaultRequestHeaders.Add("x-api-key", jobsSettings.ApiKey);
+                    });
+
+                    services.AddHttpClient<ITwitterService, TwitterService>(configure =>
+                    {
+                        configure.BaseAddress = new Uri(jobsSettings.TwitterApiBaseUrl);
+                        configure.DefaultRequestHeaders.Add("Authorization", $"Bearer {jobsSettings.TwitterBearerToken}");
                     });
 
                     services.AddSingleton<DiscordSocketClient>();

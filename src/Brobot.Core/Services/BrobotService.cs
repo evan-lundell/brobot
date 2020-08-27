@@ -201,5 +201,27 @@ namespace Brobot.Core.Services
                 throw new BrobotServiceException($"Failed to update reminder {reminder.ReminderId}", ex);
             }
         }
+
+        public async Task<JobParameter> UpdateJobParameter(int jobId, int jobParameterId, JobParameter jobParameter)
+        {
+            try
+            {
+                var content = new StringContent(JsonConvert.SerializeObject(jobParameter), Encoding.UTF8, "application/json");
+                var response = await _client.PutAsync($"jobs/{jobId}/parameter/{jobParameterId}", content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new BrobotServiceException($"Failed to update job parameter {jobParameterId} with a status code of {response.StatusCode}");
+                }
+
+                var updatedJobParameterString = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<JobParameter>(updatedJobParameterString);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Failed to update job parameter {jobParameterId}");
+                throw new BrobotServiceException($"Failed to update job parameter {jobParameterId}", ex);
+            }
+        }
     }
 }
