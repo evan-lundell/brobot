@@ -1,4 +1,5 @@
-﻿using Brobot.Core.Models;
+﻿using Brobot.Commands.Services;
+using Brobot.Core.Models;
 using Brobot.Core.Services;
 using Discord.Commands;
 using System;
@@ -12,6 +13,7 @@ namespace Brobot.Commands.Modules
     {
         public IBrobotService BrobotService { get; set; }
         public Random Random { get; set; }
+        public IRandomFactService RandomFactService { get; set; }
 
         [Command("game")]
         public async Task Game(params string[] games)
@@ -130,6 +132,20 @@ namespace Brobot.Commands.Modules
             catch (Exception)
             {
                 await ReplyAsync("Failed to set reminder message");
+            }
+        }
+
+        [Command("fact")]
+        public async Task Fact()
+        {
+            try
+            {
+                var fact = await RandomFactService.GetRandomFactAsync();
+                await ReplyAsync(fact.Text);
+            }
+            catch (Exception)
+            {
+                await ReplyAsync("Failed to get random fact");
             }
         }
     }
