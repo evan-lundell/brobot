@@ -46,7 +46,7 @@ namespace Brobot.Commands
 
                     services.AddHttpClient<IRandomFactService, RandomFactService>(configure =>
                     {
-                        configure.BaseAddress = new Uri("https://uselessfacts.jsph.pl/");
+                        configure.BaseAddress = new Uri(commandsSettings.RandomFactBaseUrl);
                     });
 
                     services.AddSingleton<DiscordSocketClient>();
