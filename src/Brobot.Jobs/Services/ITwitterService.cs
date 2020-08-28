@@ -8,6 +8,6 @@ namespace Brobot.Jobs.Services
 {
     public interface ITwitterService
     {
-        Task<IEnumerable<Tweet>> GetTweetsAsync(string from, string contains, string sinceId);
+        Task<IEnumerable<Tweet>> GetTweetsAsync(string from, string contains = null, string sinceId = null, DateTime? startTime = null);
     }
 }

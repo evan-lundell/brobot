@@ -21,7 +21,7 @@ namespace Brobot.Jobs.Services
             _logger = logger;
         }
 
-        public async Task<IEnumerable<Tweet>> GetTweetsAsync(string from, string contains, string sinceId)
+        public async Task<IEnumerable<Tweet>> GetTweetsAsync(string from, string contains = null, string sinceId = null, DateTime? startTime = null)
         {
             try
             {
@@ -43,6 +43,11 @@ namespace Brobot.Jobs.Services
                 if (!string.IsNullOrWhiteSpace(sinceId))
                 {
                     queryStringBuilder.Add("since_id", sinceId);
+                }
+
+                if (startTime.HasValue)
+                {
+                    queryStringBuilder.Add("start_time", startTime.Value.ToString("yyyy-MM-ddTHH:mm:ssZ"));
                 }
 
                 var tweets = new List<Tweet>();
