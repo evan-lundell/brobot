@@ -9,5 +9,7 @@ namespace Brobot.Jobs
         public string BrobotToken { get; set; }
         public string BaseUrl { get; set; }
         public string ApiKey { get; set; }
+        public string TwitterApiBaseUrl { get; set; }
+        public string TwitterBearerToken { get; set; }
     }
 }

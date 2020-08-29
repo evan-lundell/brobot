@@ -9,5 +9,6 @@ namespace Brobot.Commands
         public string BaseUrl { get; set; }
         public string BrobotToken { get; set; }
         public string ApiKey { get; set; }
+        public string RandomFactBaseUrl { get; set; }
     }
 }

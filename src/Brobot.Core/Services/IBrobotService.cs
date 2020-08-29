@@ -68,5 +68,14 @@ namespace Brobot.Core.Services
         /// <param name="reminder">The reminder to be updated</param>
         /// <returns>The updated reminder</returns>
         Task<Reminder> UpdateReminder(Reminder reminder);
+
+        /// <summary>
+        /// Updates a job parameter
+        /// </summary>
+        /// <param name="jobId">The job id</param>
+        /// <param name="jobParameterId">The parameter id</param>
+        /// <param name="jobParameter">The parameter that is being updated</param>
+        /// <returns>The updated parameter</returns>
+        Task<JobParameter> UpdateJobParameter(int jobId, int jobParameterId, JobParameter jobParameter);
     }
 }

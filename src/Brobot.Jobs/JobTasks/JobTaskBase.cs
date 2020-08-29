@@ -16,6 +16,7 @@ namespace Brobot.Jobs.JobTasks
         protected Task _executingTask;
         protected CancellationTokenSource _tokenSource;
 
+        protected const int MaxNumberOfFailures = 3;
         public Job Job { get; }
 
         protected ILogger Logger { get; }
@@ -70,7 +71,7 @@ namespace Brobot.Jobs.JobTasks
 
                 _executing = true;
                 await ExecuteJobAsync(stoppingToken);
-                if (NumberOfFailures > 3)
+                if (NumberOfFailures > MaxNumberOfFailures)
                 {
                     await StopAsync();
                 }
