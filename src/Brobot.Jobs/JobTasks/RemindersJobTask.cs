@@ -30,7 +30,7 @@ namespace Brobot.Jobs.JobTasks
                         continue;
                     }
 
-                    foreach (var reminder in activeReminders.Where(r => r.ChannelId == channel.ChannelId))
+                    foreach (var reminder in activeReminders.Where(r => r.ChannelId == channel.ChannelId && r.SentDateUtc == null))
                     {
                         await socketTextChannel.SendMessageAsync($"@everyone {reminder.Message}");
                         reminder.SentDateUtc = DateTime.UtcNow;
