@@ -144,6 +144,7 @@ namespace Brobot.Commands.Modules
         }
 
         [Command("fact")]
+        [Summary("Gets a random fact")]
         public async Task Fact()
         {
             try

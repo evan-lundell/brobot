@@ -32,22 +32,58 @@ namespace Brobot.Commands.Modules
                 return;
             }
 
-            var description = new StringBuilder();
             foreach (var command in brobotModule.Commands)
             {
                 var result = await command.CheckPreconditionsAsync(Context);
                 if (result.IsSuccess)
                 {
-                    description.AppendLine($"!{command.Aliases.First()}");
+                    builder.AddField(x =>
+                    {
+                        x.Name = $"!{command.Aliases.First()}";
+                        string value = "";
+                        if (command.Parameters.Count > 0)
+                        {
+                            value += $"Parameters: {string.Join(", ", command.Parameters.Select(p => p.Name))}\n";
+                        }
+                        value += $"Summary: {command.Summary}";
+                        x.Value = value;
+                        x.IsInline = false;
+                    });
                 }
             }
 
-            if (description.Length > 0)
+            await ReplyAsync("", false, builder.Build());
+        }
+
+        [Command("help")]
+        public async Task HelpAsync(string command)
+        {
+            var result = _service.Search(Context, command);
+
+            if (!result.IsSuccess)
             {
+                await ReplyAsync($"{command} does not exist. Type !help for a full list of commands.");
+                return;
+            }
+
+            var builder = new EmbedBuilder
+            {
+                Color = new Color(114, 137, 218)
+            };
+
+            foreach (var match in result.Commands)
+            {
+                var cmd = match.Command;
                 builder.AddField(x =>
                 {
-                    x.Name = brobotModule.Name;
-                    x.Value = description.ToString();
+                    x.Name = $"!{cmd.Aliases.First()}";
+                    string value = "";
+                    if (cmd.Parameters.Count > 0)
+                    {
+                        value += $"Parameters: {string.Join(", ", cmd.Parameters.Select(p => p.Name))}\n";
+                    }
+                    value += $"Summary: {cmd.Summary}";
+                    x.Value = value;
                     x.IsInline = false;
                 });
             }
