@@ -16,12 +16,14 @@ namespace Brobot.Commands.Modules
         public IRandomFactService RandomFactService { get; set; }
 
         [Command("game")]
+        [Summary("Picks a random game from the given list. Ex: !game \"Rocket League\" \"Overwatch\" \"Dauntless\"")]
         public async Task Game(params string[] games)
         {
             await ReplyAsync($"Let's play {games[Random.Next(0, games.Length)]}!");
         }
 
         [Command("dice")]
+        [Summary("Rolls dice based on the given parameter. Ex: !roll 2d8")]
         public async Task Dice(string dice)
         {
             var nums = dice.Split('d');
@@ -47,12 +49,14 @@ namespace Brobot.Commands.Modules
 
         [Command("info")]
         [RequireUserPermission(Discord.GuildPermission.Administrator)]
+        [Summary("Gets server info")]
         public async Task Info()
         {
             await ReplyAsync($"Server: {Context.Guild.Id}\nChannel: {Context.Channel.Id}");
         }
 
         [Command("teams")]
+        [Summary("Generates two teams based on the list of provided players. Ex: !teams Player1 Player2 Player3 Player4")]
         public async Task Teams(params string[] args)
         {
             var players = new List<string>(args);
@@ -70,18 +74,21 @@ namespace Brobot.Commands.Modules
         }
 
         [Command("pika")]
+        [Summary("Shocked Pikachu")]
         public async Task Pika()
         {
             await Context.Channel.SendFileAsync("./Images/pika.jpeg");
         }
 
         [Command("doh")]
+        [Summary("Doh!")]
         public async Task Doh()
         {
             await Context.Channel.SendFileAsync("./Images/doh.png");
         }
 
         [Command("sarcasm")]
+        [Summary("Post the provided text in SaRcAsM fOnT. Ex: !sarcasm This is a sarcastic statement")]
         public async Task Sarcasm([Remainder]string text)
         {
             var response = new StringBuilder();
@@ -103,6 +110,7 @@ namespace Brobot.Commands.Modules
         }
 
         [Command("reminder")]
+        [Summary("Saves a reminder for this channel. Requires two parameters, a date/time (yyyy-MM-dd HH:mm) and a message. Ex: !reminder \"2020-01-01 18:00\" \"This is a reminder\"")]
         public async Task Reminder(string reminderDateTime, string reminderMessage)
         {
             try
@@ -136,6 +144,7 @@ namespace Brobot.Commands.Modules
         }
 
         [Command("fact")]
+        [Summary("Gets a random fact")]
         public async Task Fact()
         {
             try
