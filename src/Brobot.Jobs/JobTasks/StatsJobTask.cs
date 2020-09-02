@@ -51,7 +51,10 @@ namespace Brobot.Jobs.JobTasks
                     var messages = await socketTextChannel.GetMessagesAsync(limit: 10000).FlattenAsync();
                     foreach (var message in messages.Where(m => m.CreatedAt.UtcDateTime >= timePeriod.PeriodStartInclusive && m.CreatedAt.UtcDateTime < timePeriod.PeriodEndExclusive))
                     {
-                        var count = messageCount[message.Author.Id];
+                        if (!messageCount.TryGetValue(message.Author.Id, out (string UserName, int MessageCount) count))
+                        {
+                            continue;
+                        }
                         count.MessageCount++;
                         messageCount[message.Author.Id] = count;
 
