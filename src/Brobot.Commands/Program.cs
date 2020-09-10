@@ -49,6 +49,11 @@ namespace Brobot.Commands
                         configure.BaseAddress = new Uri(commandsSettings.RandomFactBaseUrl);
                     });
 
+                    services.AddHttpClient<IGiphyService, GiphyService>(configure =>
+                    {
+                        configure.BaseAddress = new Uri(commandsSettings.GiphyBaseUrl);
+                    });
+
                     services.AddSingleton<DiscordSocketClient>();
                     services.AddSingleton<CommandService>();
                     services.AddSingleton<CommandHandlingService>();

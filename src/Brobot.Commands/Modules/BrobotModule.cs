@@ -14,6 +14,7 @@ namespace Brobot.Commands.Modules
         public IBrobotService BrobotService { get; set; }
         public Random Random { get; set; }
         public IRandomFactService RandomFactService { get; set; }
+        public IGiphyService GiphyService { get; set; }
 
         [Command("game")]
         [Summary("Picks a random game from the given list. Ex: !game \"Rocket League\" \"Overwatch\" \"Dauntless\"")]
@@ -155,6 +156,21 @@ namespace Brobot.Commands.Modules
             catch (Exception)
             {
                 await ReplyAsync("Failed to get random fact");
+            }
+        }
+
+        [Command("gif")]
+        [Summary("Posts a random gif")]
+        public async Task Gif([Remainder]string tag = null)
+        {
+            try
+            {
+                var giphyResponse = await GiphyService.GetRandomGif(tag);
+                await ReplyAsync(giphyResponse.Data.Url);
+            }
+            catch (Exception)
+            {
+                await ReplyAsync("Failed to get random gif");
             }
         }
     }

@@ -10,5 +10,7 @@ namespace Brobot.Commands
         public string BrobotToken { get; set; }
         public string ApiKey { get; set; }
         public string RandomFactBaseUrl { get; set; }
+        public string GiphyApiKey { get; set; }
+        public string GiphyBaseUrl { get; set; }
     }
 }
