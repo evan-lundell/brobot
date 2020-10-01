@@ -81,14 +81,21 @@ namespace Brobot.Jobs.JobTasks
 
                     if (generateWordCloud)
                     {
-                        var wc = new WordCloud(1280, 720);
-                        var frequencies = words
-                            .OrderByDescending(w => w.Value)
-                            .Take(100)
-                            .Select(w => new { Frequency = w.Value, Word = w.Key });
-                        wc.Draw(frequencies.Select(f => f.Word).ToList(), frequencies.Select(f => f.Frequency).ToList()).Save(_wordcloudPath);
-                        await socketTextChannel.SendFileAsync(_wordcloudPath, string.Empty);
-                        File.Delete(_wordcloudPath);
+                        try
+                        {
+                            var wc = new WordCloud(1280, 720);
+                            var frequencies = words
+                                .OrderByDescending(w => w.Value)
+                                .Take(100)
+                                .Select(w => new { Frequency = w.Value, Word = w.Key });
+                            wc.Draw(frequencies.Select(f => f.Word).ToList(), frequencies.Select(f => f.Frequency).ToList()).Save(_wordcloudPath);
+                            await socketTextChannel.SendFileAsync(_wordcloudPath, string.Empty);
+                            File.Delete(_wordcloudPath);
+                        }
+                        catch (Exception ex) // if there was an error with the word cloud, don't kill the entire process
+                        {
+                            Logger.LogWarning(ex, "Failed to generate word cloud");
+                        }
                     }
                 }
             }
