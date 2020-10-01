@@ -16,6 +16,7 @@ WORKDIR /app/src/Brobot.Jobs
 RUN dotnet publish -c Release -o /out
 
 FROM mcr.microsoft.com/dotnet/core/runtime:3.1
+RUN apt-get update && apt-get install -y -allow-unauthenticated libc6-dev libgdiplus libx11-dev
 WORKDIR /app
 COPY --from=build-env /out .
 ENTRYPOINT ["dotnet", "Brobot.Jobs.dll"]
