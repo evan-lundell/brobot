@@ -53,6 +53,11 @@ namespace Brobot.Api.MappingProfiles
                 .ForMember(model => model.Name, opt => opt.MapFrom(entity => entity.JobParameterDefinition.Name));
             CreateMap<Entities.Job, Models.Job>()
                 .ForMember(model => model.Channels, opt => opt.MapFrom(entity => entity.JobChannels.Select(jc => jc.Channel)));
+
+            CreateMap<Entities.SecretSantaGroup, Models.SecretSantaGroup>().ReverseMap();
+            CreateMap<Entities.SecretSantaGroupDiscordUser, Models.SecretSantaGroupDiscordUser>().ReverseMap();
+            CreateMap<Entities.SecretSantaEvent, Models.SecretSantaEvent>().ReverseMap();
+            CreateMap<Entities.SecretSantaPairing, Models.SecretSantaPairing>().ReverseMap();
         }
     }
 }

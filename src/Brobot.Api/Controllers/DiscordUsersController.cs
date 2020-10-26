@@ -41,5 +41,19 @@ namespace Brobot.Api.Controllers
                 return InternalServerError("Unable to get Discord Users.", ex);
             }
         }
+
+        [HttpGet("{discordUserId}")]
+        public async Task<ActionResult<Models.DiscordUser>> GetDiscordUser(ulong discordUserId)
+        {
+            try
+            {
+                var discordUser = await Context.DiscordUsers.FindAsync(discordUserId);
+                return Ok(Mapper.Map<Entities.DiscordUser, Models.DiscordUser>(discordUser));
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError($"Unable to get Discord user {discordUserId}", ex);
+            }
+        }
     }
 }

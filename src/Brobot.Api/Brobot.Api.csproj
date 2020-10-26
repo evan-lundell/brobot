@@ -27,6 +27,12 @@
     <Compile Remove="Migrations\20200801205310_Jobs.Designer.cs" />
     <Compile Remove="Migrations\20200801205438_SeedJobDefinitions.cs" />
     <Compile Remove="Migrations\20200801205438_SeedJobDefinitions.Designer.cs" />
+    <Compile Remove="Migrations\20201020210133_SecretSanta.cs" />
+    <Compile Remove="Migrations\20201020210133_SecretSanta.Designer.cs" />
+    <Compile Remove="Migrations\20201020210336_SecretSanta.cs" />
+    <Compile Remove="Migrations\20201020210336_SecretSanta.Designer.cs" />
+    <Compile Remove="Migrations\20201026161855_SecretSanta.cs" />
+    <Compile Remove="Migrations\20201026161855_SecretSanta.Designer.cs" />
     <Compile Remove="Migrations\AuthenticationDb\20200726185924_InitialMigration.cs" />
     <Compile Remove="Migrations\AuthenticationDb\20200726185924_InitialMigration.Designer.cs" />
   </ItemGroup>

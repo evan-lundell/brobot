@@ -10,6 +10,7 @@ namespace Brobot.Core.Models
         public string Username { get; set; }
         public DateTime? Birthdate { get; set; }
         public string Timezone { get; set; }
+        public bool BrobotAdmin { get; set; }
 
         public override bool Equals(object obj)
         {

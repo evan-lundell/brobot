@@ -77,5 +77,36 @@ namespace Brobot.Core.Services
         /// <param name="jobParameter">The parameter that is being updated</param>
         /// <returns>The updated parameter</returns>
         Task<JobParameter> UpdateJobParameter(int jobId, int jobParameterId, JobParameter jobParameter);
+
+        /// <summary>
+        /// Creates a new secret santa group
+        /// </summary>
+        /// <param name="secretSantaGroup">The groupd to be created</param>
+        /// <returns>The new group</returns>
+        Task<SecretSantaGroup> CreateSecretSantaGroup(SecretSantaGroup secretSantaGroup);
+
+        /// <summary>
+        /// Adds a new member to secret santa group
+        /// </summary>
+        /// <param name="groupId">The id of the group to add to</param>
+        /// <param name="discordUserId">The id of the discord user</param>
+        /// <returns>The new group user model</returns>
+        Task<SecretSantaGroupDiscordUser> AddDiscordUserToSecretSantaGroup(int groupId, ulong discordUserId);
+
+        /// <summary>
+        /// Adds a new event for a secret santa group
+        /// </summary>
+        /// <param name="groupId">The group to add the event for</param>
+        /// <param name="year">The year the event is happening</param>
+        /// <param name="createdById">The id of the user that created the event</param>
+        /// <returns></returns>
+        Task<SecretSantaEvent> CreateSecretSantaEvent(int groupId, int year, ulong? createdById);
+
+        /// <summary>
+        /// Gets a discord user
+        /// </summary>
+        /// <param name="discordUserId">Discord user id</param>
+        /// <returns>The discord user</returns>
+        Task<DiscordUser> GetDiscordUser(ulong discordUserId);
     }
 }

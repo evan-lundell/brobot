@@ -73,6 +73,13 @@ namespace Brobot.Api.Migrations
                         .HasColumnName("birthdate")
                         .HasColumnType("timestamp without time zone");
 
+                    b.Property<bool?>("BrobotAdmin")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("brobot_admin")
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
                     b.Property<string>("Timezone")
                         .HasColumnName("timezone")
                         .HasColumnType("character varying(64)")
@@ -349,6 +356,115 @@ namespace Brobot.Api.Migrations
                     b.ToTable("reminder","brobot");
                 });
 
+            modelBuilder.Entity("Brobot.Api.Entities.SecretSantaEvent", b =>
+                {
+                    b.Property<int>("SecretSantaEventId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<decimal?>("CreatedById")
+                        .HasColumnName("created_by_id")
+                        .HasColumnType("numeric(20,0)");
+
+                    b.Property<DateTime>("CreatedDateUtc")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("created_date_utc")
+                        .HasColumnType("timestamp without time zone")
+                        .HasDefaultValueSql("now() at time zone 'utc'");
+
+                    b.Property<int>("SecretSantaGroupId")
+                        .HasColumnName("secret_santa_group_id")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Year")
+                        .HasColumnName("year")
+                        .HasColumnType("integer");
+
+                    b.HasKey("SecretSantaEventId");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("SecretSantaGroupId");
+
+                    b.ToTable("secret_santa_event");
+                });
+
+            modelBuilder.Entity("Brobot.Api.Entities.SecretSantaGroup", b =>
+                {
+                    b.Property<int>("SecretSantaGroupId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<bool?>("CheckPastYearPairings")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("check_past_year_pairings")
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnName("name")
+                        .HasColumnType("character varying(100)")
+                        .HasMaxLength(100);
+
+                    b.HasKey("SecretSantaGroupId");
+
+                    b.ToTable("secret_santa_group","brobot");
+                });
+
+            modelBuilder.Entity("Brobot.Api.Entities.SecretSantaGroupDiscordUser", b =>
+                {
+                    b.Property<int>("SecretSantaGroupId")
+                        .HasColumnName("secret_santa_group_id")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("DiscordUserId")
+                        .HasColumnName("discord_user_id")
+                        .HasColumnType("numeric(20,0)");
+
+                    b.HasKey("SecretSantaGroupId", "DiscordUserId");
+
+                    b.HasIndex("DiscordUserId");
+
+                    b.ToTable("secret_santa_group_discord_user","brobot");
+                });
+
+            modelBuilder.Entity("Brobot.Api.Entities.SecretSantaPairing", b =>
+                {
+                    b.Property<int>("SecretSantaPairingId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<decimal>("GiverId")
+                        .HasColumnName("giver_id")
+                        .HasColumnType("numeric(20,0)");
+
+                    b.Property<decimal>("RecipientId")
+                        .HasColumnName("recipient_id")
+                        .HasColumnType("numeric(20,0)");
+
+                    b.Property<int>("SecretSantaEventId")
+                        .HasColumnName("secret_santa_event_id")
+                        .HasColumnType("integer");
+
+                    b.HasKey("SecretSantaPairingId");
+
+                    b.HasIndex("GiverId");
+
+                    b.HasIndex("RecipientId");
+
+                    b.HasIndex("SecretSantaEventId");
+
+                    b.ToTable("secret_santa_pairing");
+                });
+
             modelBuilder.Entity("Brobot.Api.Entities.Server", b =>
                 {
                     b.Property<decimal>("ServerId")
@@ -464,6 +580,56 @@ namespace Brobot.Api.Migrations
                     b.HasOne("Brobot.Api.Entities.DiscordUser", "Owner")
                         .WithMany("Reminders")
                         .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Brobot.Api.Entities.SecretSantaEvent", b =>
+                {
+                    b.HasOne("Brobot.Api.Entities.DiscordUser", "CreatedBy")
+                        .WithMany("SecretSantaEvents")
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Brobot.Api.Entities.SecretSantaGroup", "SecretSantaGroup")
+                        .WithMany("SecretSantaEvents")
+                        .HasForeignKey("SecretSantaGroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Brobot.Api.Entities.SecretSantaGroupDiscordUser", b =>
+                {
+                    b.HasOne("Brobot.Api.Entities.DiscordUser", "DiscordUser")
+                        .WithMany("SecretSantaGroupDiscordUsers")
+                        .HasForeignKey("DiscordUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Brobot.Api.Entities.SecretSantaGroup", "SecretSantaGroup")
+                        .WithMany("SecretSantaGroupDiscordUsers")
+                        .HasForeignKey("SecretSantaGroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Brobot.Api.Entities.SecretSantaPairing", b =>
+                {
+                    b.HasOne("Brobot.Api.Entities.DiscordUser", "Giver")
+                        .WithMany("GiverPairings")
+                        .HasForeignKey("GiverId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Brobot.Api.Entities.DiscordUser", "Recipient")
+                        .WithMany("RecipientPairings")
+                        .HasForeignKey("RecipientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Brobot.Api.Entities.SecretSantaEvent", "SecretSantaEvent")
+                        .WithMany("SecretSantaPairings")
+                        .HasForeignKey("SecretSantaEventId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

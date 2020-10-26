@@ -223,5 +223,114 @@ namespace Brobot.Core.Services
                 throw new BrobotServiceException($"Failed to update job parameter {jobParameterId}", ex);
             }
         }
+
+        public async Task<SecretSantaGroup> CreateSecretSantaGroup(SecretSantaGroup secretSantaGroup)
+        {
+            try
+            {
+                var content = new StringContent(JsonConvert.SerializeObject(secretSantaGroup), Encoding.UTF8, "application/json");
+                var response = await _client.PostAsync("secretsanta/group", content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorMessageString = await response.Content.ReadAsStringAsync();
+                    var errorMessage = JsonConvert.DeserializeObject<BrobotServiceError>(errorMessageString);
+                    throw new BrobotServiceException((int)response.StatusCode, errorMessage.Message, $"Failed to create secret santa group {secretSantaGroup.Name}");
+                }
+
+                var newSecretSantaGroupString = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<SecretSantaGroup>(newSecretSantaGroupString);
+            }
+            catch (BrobotServiceException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Failed to create secret santa group {secretSantaGroup.Name}");
+                throw new BrobotServiceException($"Failed to create secret santa group {secretSantaGroup.Name}", ex);
+            }
+        }
+
+        public async Task<SecretSantaGroupDiscordUser> AddDiscordUserToSecretSantaGroup(int groupId, ulong discordUserId)
+        {
+            try
+            {
+                var secretSantaGroupDiscordUser = new SecretSantaGroupDiscordUser
+                {
+                    SecretSantaGroupId = groupId,
+                    DiscordUserId = discordUserId
+                };
+                var content = new StringContent(JsonConvert.SerializeObject(secretSantaGroupDiscordUser), Encoding.UTF8, "application/json");
+                var response = await _client.PostAsync($"secretsanta/group/{groupId}/member", content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorMessageString = await response.Content.ReadAsStringAsync();
+                    var errorMessage = JsonConvert.DeserializeObject<BrobotServiceError>(errorMessageString);
+                    throw new BrobotServiceException((int)response.StatusCode, errorMessage.Message, $"Failed to add user {discordUserId} to secret santa group {groupId}");
+                }
+
+                var responseString = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<SecretSantaGroupDiscordUser>(responseString);
+            }
+            catch (BrobotServiceException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Failed to add user {discordUserId} to secret santa group {groupId}");
+                throw new BrobotServiceException($"Failed to add user {discordUserId} to secret santa group {groupId}", ex);
+            }
+        }
+
+        public async Task<SecretSantaEvent> CreateSecretSantaEvent(int groupId, int year, ulong? createdById)
+        {
+            try
+            {
+                var ssEvent = new SecretSantaEvent
+                {
+                    SecretSantaGroupId = groupId,
+                    Year = year,
+                    CreatedById = createdById
+                };
+                var content = new StringContent(JsonConvert.SerializeObject(ssEvent), Encoding.UTF8, "application/json");
+                var response = await _client.PostAsync($"secretsanta/group/{groupId}/event", content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorMessageString = await response.Content.ReadAsStringAsync();
+                    var errorMessage = JsonConvert.DeserializeObject<BrobotServiceError>(errorMessageString);
+                    throw new BrobotServiceException((int)response.StatusCode, errorMessage.Message, $"Failed to create event for group {groupId}, year {year}");
+                }
+
+                var responseString = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<SecretSantaEvent>(responseString);
+            }
+            catch (BrobotServiceException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Failed to create event for group {groupId}, year {year}");
+                throw new BrobotServiceException($"Failed to create event for group {groupId}, year {year}", ex);
+            }
+        }
+
+        public async Task<DiscordUser> GetDiscordUser(ulong discordUserId)
+        {
+            try
+            {
+                var response = await _client.GetStringAsync($"discordusers/{discordUserId}");
+                return JsonConvert.DeserializeObject<DiscordUser>(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Failed to get user {discordUserId}");
+                throw new BrobotServiceException($"Failed to get user {discordUserId}", ex);
+            }
+        }
     }
 }

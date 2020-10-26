@@ -21,6 +21,7 @@ namespace Brobot.Api.Contexts
         public DbSet<EventResponse> EventResponses { get; set; }
         public DbSet<Reminder> Reminders { get; set; }
         public DbSet<Job> Jobs { get; set; }
+        public DbSet<SecretSantaGroup> SecretSantaGroups { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -75,6 +76,11 @@ namespace Brobot.Api.Contexts
                 .HasColumnName("timezone")
                 .IsRequired(false)
                 .HasMaxLength(64);
+            builder.Entity<DiscordUser>()
+                .Property(du => du.BrobotAdmin)
+                .HasColumnName("brobot_admin")
+                .IsRequired(true)
+                .HasDefaultValue(true);
 
             builder.Entity<DiscordUserChannel>()
                 .ToTable(name: "discord_user_channel", schema: "brobot")
@@ -305,6 +311,104 @@ namespace Brobot.Api.Contexts
                 .HasOne(jc => jc.Channel)
                 .WithMany(c => c.JobChannels)
                 .HasForeignKey(jc => jc.ChannelId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<SecretSantaGroup>()
+                .ToTable(name: "secret_santa_group", schema: "brobot")
+                .HasKey(ssg => ssg.SecretSantaGroupId);
+            builder.Entity<SecretSantaGroup>()
+                .Property(ssg => ssg.SecretSantaGroupId)
+                .HasColumnName("id");
+            builder.Entity<SecretSantaGroup>()
+                .Property(ssg => ssg.Name)
+                .HasColumnName("name")
+                .IsRequired(true)
+                .HasMaxLength(100);
+            builder.Entity<SecretSantaGroup>()
+                .Property(ssg => ssg.CheckPastYearPairings)
+                .HasColumnName("check_past_year_pairings")
+                .HasDefaultValue(true)
+                .IsRequired(true);
+
+            builder.Entity<SecretSantaGroupDiscordUser>()
+                .ToTable(name: "secret_santa_group_discord_user", schema: "brobot")
+                .HasKey(ssgdu => new { ssgdu.SecretSantaGroupId, ssgdu.DiscordUserId });
+            builder.Entity<SecretSantaGroupDiscordUser>()
+                .Property(ssgdu => ssgdu.DiscordUserId)
+                .HasColumnName("discord_user_id");
+            builder.Entity<SecretSantaGroupDiscordUser>()
+                .Property(ssgdu => ssgdu.SecretSantaGroupId)
+                .HasColumnName("secret_santa_group_id");
+            builder.Entity<SecretSantaGroupDiscordUser>()
+                .HasOne(ssgdu => ssgdu.SecretSantaGroup)
+                .WithMany(ssg => ssg.SecretSantaGroupDiscordUsers)
+                .HasForeignKey(ssgdu => ssgdu.SecretSantaGroupId)
+                .OnDelete(DeleteBehavior.Cascade);
+            builder.Entity<SecretSantaGroupDiscordUser>()
+                .HasOne(ssgdu => ssgdu.DiscordUser)
+                .WithMany(du => du.SecretSantaGroupDiscordUsers)
+                .HasForeignKey(ssgdu => ssgdu.DiscordUserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<SecretSantaEvent>()
+                .ToTable("secret_santa_event")
+                .HasKey(sse => sse.SecretSantaEventId);
+            builder.Entity<SecretSantaEvent>()
+                .Property(sse => sse.SecretSantaEventId)
+                .HasColumnName("id");
+            builder.Entity<SecretSantaEvent>()
+                .Property(sse => sse.Year)
+                .HasColumnName("year");
+            builder.Entity<SecretSantaEvent>()
+                .Property(sse => sse.CreatedDateUtc)
+                .HasColumnName("created_date_utc")
+                .HasDefaultValueSql("now() at time zone 'utc'");
+            builder.Entity<SecretSantaEvent>()
+                .Property(sse => sse.CreatedById)
+                .HasColumnName("created_by_id");
+            builder.Entity<SecretSantaEvent>()
+                .Property(sse => sse.SecretSantaGroupId)
+                .HasColumnName("secret_santa_group_id");
+            builder.Entity<SecretSantaEvent>()
+                .HasOne(sse => sse.CreatedBy)
+                .WithMany(du => du.SecretSantaEvents)
+                .HasForeignKey(sse => sse.CreatedById)
+                .OnDelete(DeleteBehavior.SetNull);
+            builder.Entity<SecretSantaEvent>()
+                .HasOne(sse => sse.SecretSantaGroup)
+                .WithMany(ssg => ssg.SecretSantaEvents)
+                .HasForeignKey(sse => sse.SecretSantaGroupId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<SecretSantaPairing>()
+                .ToTable("secret_santa_pairing")
+                .HasKey(ssp => ssp.SecretSantaPairingId);
+            builder.Entity<SecretSantaPairing>()
+                .Property(ssp => ssp.SecretSantaPairingId)
+                .HasColumnName("id");
+            builder.Entity<SecretSantaPairing>()
+                .Property(ssp => ssp.SecretSantaEventId)
+                .HasColumnName("secret_santa_event_id");
+            builder.Entity<SecretSantaPairing>()
+                .Property(ssp => ssp.GiverId)
+                .HasColumnName("giver_id");
+            builder.Entity<SecretSantaPairing>()
+                .Property(ssp => ssp.RecipientId)
+                .HasColumnName("recipient_id");
+            builder.Entity<SecretSantaPairing>()
+                .HasOne(ssp => ssp.SecretSantaEvent)
+                .WithMany(sse => sse.SecretSantaPairings)
+                .HasForeignKey(ssp => ssp.SecretSantaEventId)
+                .OnDelete(DeleteBehavior.Cascade);
+            builder.Entity<SecretSantaPairing>()
+                .HasOne(ssp => ssp.Recipient)
+                .WithMany(du => du.RecipientPairings)
+                .HasForeignKey(ssp => ssp.RecipientId)
+                .OnDelete(DeleteBehavior.Cascade);
+            builder.Entity<SecretSantaPairing>()
+                .HasOne(ssp => ssp.Giver)
+                .WithMany(du => du.GiverPairings)
+                .HasForeignKey(ssp => ssp.GiverId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }
