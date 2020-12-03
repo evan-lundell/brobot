@@ -44,6 +44,7 @@ namespace Brobot.Monitor
 
                     var discordConfig = new DiscordSocketConfig
                     {
+                        AlwaysDownloadUsers = true,
                         MessageCacheSize = 100
                     };
                     services.AddSingleton(new DiscordSocketClient(discordConfig));

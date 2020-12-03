@@ -49,7 +49,12 @@ namespace Brobot.Jobs
                         configure.DefaultRequestHeaders.Add("Authorization", $"Bearer {jobsSettings.TwitterBearerToken}");
                     });
 
-                    services.AddSingleton<DiscordSocketClient>();
+                    var config = new DiscordSocketConfig
+                    {
+                        AlwaysDownloadUsers = true
+                    };
+                    var client = new DiscordSocketClient(config);
+                    services.AddSingleton<DiscordSocketClient>(client);
                     services.AddHostedService<JobsWorker>();
                 });
     }
