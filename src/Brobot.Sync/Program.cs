@@ -42,7 +42,13 @@ namespace Brobot.Sync
                         configure.BaseAddress = new Uri(syncSettings.BaseUrl);
                         configure.DefaultRequestHeaders.Add("x-api-key", syncSettings.ApiKey);
                     });
-                    services.AddSingleton<DiscordSocketClient>();
+
+                    var config = new DiscordSocketConfig
+                    {
+                        AlwaysDownloadUsers = true
+                    };
+                    var client = new DiscordSocketClient(config);
+                    services.AddSingleton<DiscordSocketClient>(client);
 
                     services.AddHostedService<SyncWorker>();
                 });

@@ -174,6 +174,16 @@ namespace Brobot.Api.Contexts
             builder.Entity<Reminder>()
                 .Property(r => r.SentDateUtc)
                 .HasColumnName("sent_date_utc");
+            builder.Entity<Reminder>()
+                .HasOne(r => r.Owner)
+                .WithMany(du => du.Reminders)
+                .HasForeignKey(r => r.OwnerId)
+                .OnDelete(DeleteBehavior.SetNull);
+            builder.Entity<Reminder>()
+                .HasOne(r => r.Channel)
+                .WithMany(c => c.Reminders)
+                .HasForeignKey(r => r.ChannelId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<JobDefinition>()
                 .ToTable(name: "job_definition", schema: "brobot")

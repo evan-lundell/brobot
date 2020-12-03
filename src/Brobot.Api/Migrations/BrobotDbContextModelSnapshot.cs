@@ -335,7 +335,7 @@ namespace Brobot.Api.Migrations
                         .HasColumnType("character varying(1024)")
                         .HasMaxLength(1024);
 
-                    b.Property<decimal>("OwnerId")
+                    b.Property<decimal?>("OwnerId")
                         .HasColumnName("owner_id")
                         .HasColumnType("numeric(20,0)");
 
@@ -580,8 +580,7 @@ namespace Brobot.Api.Migrations
                     b.HasOne("Brobot.Api.Entities.DiscordUser", "Owner")
                         .WithMany("Reminders")
                         .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("Brobot.Api.Entities.SecretSantaEvent", b =>

@@ -9,7 +9,7 @@ namespace Brobot.Api.Entities
     {
         public int ReminderId { get; set; }
         
-        public ulong OwnerId { get; set; }
+        public ulong? OwnerId { get; set; }
         public DiscordUser Owner { get; set; }
 
         public ulong ChannelId { get; set; }
