@@ -38,7 +38,7 @@ namespace Brobot.Jobs.JobTasks
                     var periodParameter = Job.JobParameters.FirstOrDefault(jp => jp.Name.Equals("period", StringComparison.OrdinalIgnoreCase));
                     var wordCloudParameter = Job.JobParameters.FirstOrDefault(jp => jp.Name.Equals("GenerateWordCloud", StringComparison.OrdinalIgnoreCase));
                     bool.TryParse(wordCloudParameter?.Value ?? "false", out bool generateWordCloud);
-                    string[] separatingStrings = { " ", "\t", "\n", "\r\n", ",", ":", "." };
+                    string[] separatingStrings = { " ", "\t", "\n", "\r\n", ",", ":", ".", "!" };
 
                     var messageCount = new Dictionary<ulong, (string UserName, int MessageCount)>();
                     var words = new Dictionary<string, int>();
@@ -57,10 +57,9 @@ namespace Brobot.Jobs.JobTasks
                         }
                         count.MessageCount++;
                         messageCount[message.Author.Id] = count;
-
                         if (generateWordCloud)
                         {
-                            foreach (var word in message.Content.Split(separatingStrings, StringSplitOptions.RemoveEmptyEntries))
+                            foreach (var word in message.Content.Split(separatingStrings, StringSplitOptions.RemoveEmptyEntries).Where(w => !Utilities.StopWords.Contains(w, StringComparer.OrdinalIgnoreCase)))
                             {
                                 if (!words.ContainsKey(word))
                                 {
