@@ -24,7 +24,8 @@ namespace Brobot.Commands.Modules
         }
 
         [Command("dice")]
-        [Summary("Rolls dice based on the given parameter. Ex: !roll 2d8")]
+        [Alias("roll")]
+        [Summary("Rolls dice based on the given parameter. Ex: !dice 2d8. !roll #d# is also valid")]
         public async Task Dice(string dice)
         {
             var nums = dice.Split('d');
