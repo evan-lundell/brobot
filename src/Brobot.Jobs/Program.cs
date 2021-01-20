@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Amazon.Lambda;
 using Brobot.Core.Services;
 using Brobot.Jobs.Services;
 using Discord.WebSocket;
@@ -16,7 +17,21 @@ namespace Brobot.Jobs
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            var host = CreateHostBuilder(args).Build();
+            if (args.Contains("-e"))
+            {
+                if (args.Length != 2 || !int.TryParse(args[1], out int jobId))
+                {
+                    Console.WriteLine("Invalid arguments");
+                    return;
+                }
+                var executor = host.Services.GetRequiredService<JobExecutor>();
+                executor.Execute(jobId).GetAwaiter().GetResult();
+            }
+            else
+            {
+                host.Run();
+            }
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -55,7 +70,18 @@ namespace Brobot.Jobs
                     };
                     var client = new DiscordSocketClient(config);
                     services.AddSingleton<DiscordSocketClient>(client);
-                    services.AddHostedService<JobsWorker>();
+
+                    var lambdaClient = new AmazonLambdaClient(jobsSettings.AwsAccessKey, jobsSettings.AwsSecretKey, Amazon.RegionEndpoint.USEast2);
+                    services.AddSingleton(lambdaClient);
+                    
+                    if (args.Contains("-e"))
+                    {
+                        services.AddSingleton<JobExecutor>();
+                    }
+                    else
+                    {
+                        services.AddHostedService<JobsWorker>();
+                    }
                 });
     }
 }

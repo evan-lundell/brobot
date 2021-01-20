@@ -108,5 +108,12 @@ namespace Brobot.Core.Services
         /// <param name="discordUserId">Discord user id</param>
         /// <returns>The discord user</returns>
         Task<DiscordUser> GetDiscordUser(ulong discordUserId);
+
+        /// <summary>
+        /// Gets a job
+        /// </summary>
+        /// <param name="jobId">The id of the job</param>
+        /// <returns>The job</returns>
+        Task<Job> GetJob(int jobId);
     }
 }

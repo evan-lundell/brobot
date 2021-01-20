@@ -96,7 +96,7 @@ namespace Brobot.Jobs.JobTasks
             }
         }
 
-        protected abstract Task ExecuteJobAsync(CancellationToken stoppingToken);
+        internal abstract Task ExecuteJobAsync(CancellationToken stoppingToken);
 
         private async Task ExpandedDelay(double milliseconds, CancellationToken stoppingToken)
         {

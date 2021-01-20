@@ -18,7 +18,7 @@ namespace Brobot.Jobs.JobTasks
         {
         }
 
-        protected async override Task ExecuteJobAsync(CancellationToken stoppingToken)
+        internal async override Task ExecuteJobAsync(CancellationToken stoppingToken)
         {
             try
             {

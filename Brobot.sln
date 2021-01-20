@@ -11,9 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brobot.Sync", "src\Brobot.S
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brobot.Monitor", "src\Brobot.Monitor\Brobot.Monitor.csproj", "{638942E3-8438-4F73-97F6-920BD4517880}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Brobot.Commands", "src\Brobot.Commands\Brobot.Commands.csproj", "{ECC7F426-49F8-4BE4-90BA-C9ADA65DE1F5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brobot.Commands", "src\Brobot.Commands\Brobot.Commands.csproj", "{ECC7F426-49F8-4BE4-90BA-C9ADA65DE1F5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Brobot.Jobs", "src\Brobot.Jobs\Brobot.Jobs.csproj", "{43C4CC11-14C9-4943-BCBF-A6FC7DA56539}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Brobot.Jobs", "src\Brobot.Jobs\Brobot.Jobs.csproj", "{43C4CC11-14C9-4943-BCBF-A6FC7DA56539}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -332,5 +332,19 @@ namespace Brobot.Core.Services
                 throw new BrobotServiceException($"Failed to get user {discordUserId}", ex);
             }
         }
+
+        public async Task<Job> GetJob(int jobId)
+        {
+            try
+            {
+                var response = await _client.GetStringAsync($"jobs/{jobId}");
+                return JsonConvert.DeserializeObject<Job>(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Failed to get job {jobId}");
+                throw new BrobotServiceException($"Failed to get user {jobId}", ex);
+            }
+        }
     }
 }

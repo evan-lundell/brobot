@@ -22,7 +22,7 @@ namespace Brobot.Jobs.JobTasks
             _twitterService = twitterService;
         }
 
-        protected async override Task ExecuteJobAsync(CancellationToken stoppingToken)
+        internal async override Task ExecuteJobAsync(CancellationToken stoppingToken)
         {
             try
             {

@@ -76,5 +76,33 @@ namespace Brobot.Api.Controllers
                 return InternalServerError("Failed to update job parameter", ex);
             }
         }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Models.Job>> GetJob(int id)
+        {
+            try
+            {
+                var jobEntity = await Context.Jobs
+                    .AsNoTracking()
+                    .Include(j => j.JobParameters)
+                    .ThenInclude(jp => jp.JobParameterDefinition)
+                    .Include(j => j.JobDefinition)
+                    .ThenInclude(jd => jd.JobParameterDefinitions)
+                    .Include(j => j.JobChannels)
+                    .ThenInclude(jc => jc.Channel)
+                    .SingleOrDefaultAsync(j => j.JobId == id);
+                
+                if (jobEntity == null)
+                {
+                    return NotFound($"Job {id} not found");
+                }
+
+                return Ok(Mapper.Map<Entities.Job, Models.Job>(jobEntity));
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError($"Failed to get job {id}", ex);
+            }
+        }
     }
 }
