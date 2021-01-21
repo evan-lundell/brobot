@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using Amazon.Lambda;
 using Brobot.Core.Services;
 using Brobot.Jobs.Services;
 using Discord.WebSocket;
@@ -70,9 +69,6 @@ namespace Brobot.Jobs
                     };
                     var client = new DiscordSocketClient(config);
                     services.AddSingleton<DiscordSocketClient>(client);
-
-                    var lambdaClient = new AmazonLambdaClient(jobsSettings.AwsAccessKey, jobsSettings.AwsSecretKey, Amazon.RegionEndpoint.USEast2);
-                    services.AddSingleton(lambdaClient);
                     
                     if (args.Contains("-e"))
                     {
