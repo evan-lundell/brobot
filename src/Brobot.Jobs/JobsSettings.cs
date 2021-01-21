@@ -11,7 +11,5 @@ namespace Brobot.Jobs
         public string ApiKey { get; set; }
         public string TwitterApiBaseUrl { get; set; }
         public string TwitterBearerToken { get; set; }
-        public string AwsAccessKey { get; set; }
-        public string AwsSecretKey { get; set; }
     }
 }
