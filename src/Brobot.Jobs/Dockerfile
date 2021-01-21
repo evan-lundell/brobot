@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build-env
+FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build-env
 WORKDIR /app
 
 COPY Brobot.sln Brobot.sln
@@ -15,7 +15,7 @@ COPY . .
 WORKDIR /app/src/Brobot.Jobs
 RUN dotnet publish -c Release -o /out
 
-FROM mcr.microsoft.com/dotnet/core/runtime:3.1
+FROM mcr.microsoft.com/dotnet/runtime:5.0
 RUN apt-get update && apt-get install -y --allow-unauthenticated libc6-dev libgdiplus libx11-dev
 WORKDIR /app
 COPY --from=build-env /out .
