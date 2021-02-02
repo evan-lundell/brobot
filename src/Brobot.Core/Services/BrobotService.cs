@@ -346,5 +346,19 @@ namespace Brobot.Core.Services
                 throw new BrobotServiceException($"Failed to get user {jobId}", ex);
             }
         }
+
+        public async Task<IEnumerable<StopWord>> GetStopWords()
+        {
+            try
+            {
+                var response = await _client.GetStringAsync("stopwords");
+                return JsonConvert.DeserializeObject<IEnumerable<StopWord>>(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to get stop words");
+                throw new BrobotServiceException("Failed to get stop words", ex);
+            }
+        }
     }
 }

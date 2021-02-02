@@ -27,6 +27,16 @@ namespace Brobot.Jobs.JobTasks
         {
             try
             {
+                var periodParameter = Job.JobParameters.FirstOrDefault(jp => jp.Name.Equals("period", StringComparison.OrdinalIgnoreCase));
+                var wordCloudParameter = Job.JobParameters.FirstOrDefault(jp => jp.Name.Equals("GenerateWordCloud", StringComparison.OrdinalIgnoreCase));
+                bool.TryParse(wordCloudParameter?.Value ?? "false", out bool generateWordCloud);
+                HashSet<string> stopWords = null;
+
+                if (generateWordCloud)
+                {
+                    stopWords = new HashSet<string>((await BrobotService.GetStopWords()).Select(sw => sw.Word));
+                }
+
                 foreach (var channel in Job.Channels)
                 {
                     var discordChannel = DiscordClient.GetChannel(channel.ChannelId);
@@ -35,9 +45,6 @@ namespace Brobot.Jobs.JobTasks
                         continue;
                     }
 
-                    var periodParameter = Job.JobParameters.FirstOrDefault(jp => jp.Name.Equals("period", StringComparison.OrdinalIgnoreCase));
-                    var wordCloudParameter = Job.JobParameters.FirstOrDefault(jp => jp.Name.Equals("GenerateWordCloud", StringComparison.OrdinalIgnoreCase));
-                    bool.TryParse(wordCloudParameter?.Value ?? "false", out bool generateWordCloud);
                     string[] separatingStrings = { " ", "\t", "\n", "\r\n", ",", ":", ".", "!" };
 
                     var messageCount = new Dictionary<ulong, (string UserName, int MessageCount)>();
@@ -59,7 +66,7 @@ namespace Brobot.Jobs.JobTasks
                         messageCount[message.Author.Id] = count;
                         if (generateWordCloud)
                         {
-                            foreach (var word in message.Content.Split(separatingStrings, StringSplitOptions.RemoveEmptyEntries).Where(w => !Utilities.StopWords.Contains(w, StringComparer.OrdinalIgnoreCase)))
+                            foreach (var word in message.Content.Split(separatingStrings, StringSplitOptions.RemoveEmptyEntries).Where(w => !stopWords.Contains(w, StringComparer.OrdinalIgnoreCase)))
                             {
                                 if (!words.ContainsKey(word))
                                 {

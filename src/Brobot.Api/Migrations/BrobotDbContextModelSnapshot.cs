@@ -15,130 +15,130 @@ namespace Brobot.Api.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
-                .HasAnnotation("ProductVersion", "3.1.6")
-                .HasAnnotation("Relational:MaxIdentifierLength", 63);
+                .UseIdentityByDefaultColumns()
+                .HasAnnotation("Relational:MaxIdentifierLength", 63)
+                .HasAnnotation("ProductVersion", "5.0.2");
 
             modelBuilder.Entity("Brobot.Api.Entities.Channel", b =>
                 {
                     b.Property<decimal>("ChannelId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
-                        .HasColumnType("numeric(20,0)");
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("id");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnName("name")
+                        .HasMaxLength(128)
                         .HasColumnType("character varying(128)")
-                        .HasMaxLength(128);
+                        .HasColumnName("name");
 
                     b.Property<decimal>("ServerId")
-                        .HasColumnName("server_id")
-                        .HasColumnType("numeric(20,0)");
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("server_id");
 
                     b.HasKey("ChannelId");
 
                     b.HasIndex("ServerId");
 
-                    b.ToTable("channel","brobot");
+                    b.ToTable("channel", "brobot");
                 });
 
             modelBuilder.Entity("Brobot.Api.Entities.DiscordEvent", b =>
                 {
                     b.Property<int>("DiscordEventId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
                         .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnName("name")
+                        .HasMaxLength(64)
                         .HasColumnType("character varying(64)")
-                        .HasMaxLength(64);
+                        .HasColumnName("name");
 
                     b.HasKey("DiscordEventId");
 
-                    b.ToTable("discord_event","brobot");
+                    b.ToTable("discord_event", "brobot");
                 });
 
             modelBuilder.Entity("Brobot.Api.Entities.DiscordUser", b =>
                 {
                     b.Property<decimal>("DiscordUserId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
-                        .HasColumnType("numeric(20,0)");
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("id");
 
                     b.Property<DateTime?>("Birthdate")
-                        .HasColumnName("birthdate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("birthdate");
 
                     b.Property<bool?>("BrobotAdmin")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("brobot_admin")
                         .HasColumnType("boolean")
-                        .HasDefaultValue(true);
+                        .HasDefaultValue(true)
+                        .HasColumnName("brobot_admin");
 
                     b.Property<string>("Timezone")
-                        .HasColumnName("timezone")
+                        .HasMaxLength(64)
                         .HasColumnType("character varying(64)")
-                        .HasMaxLength(64);
+                        .HasColumnName("timezone");
 
                     b.Property<string>("Username")
                         .IsRequired()
-                        .HasColumnName("username")
+                        .HasMaxLength(128)
                         .HasColumnType("character varying(128)")
-                        .HasMaxLength(128);
+                        .HasColumnName("username");
 
                     b.HasKey("DiscordUserId");
 
-                    b.ToTable("discord_user","brobot");
+                    b.ToTable("discord_user", "brobot");
                 });
 
             modelBuilder.Entity("Brobot.Api.Entities.DiscordUserChannel", b =>
                 {
                     b.Property<decimal>("DiscordUserId")
-                        .HasColumnName("discord_user_id")
-                        .HasColumnType("numeric(20,0)");
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("discord_user_id");
 
                     b.Property<decimal>("ChannelId")
-                        .HasColumnName("channel_id")
-                        .HasColumnType("numeric(20,0)");
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("channel_id");
 
                     b.HasKey("DiscordUserId", "ChannelId");
 
                     b.HasIndex("ChannelId");
 
-                    b.ToTable("discord_user_channel","brobot");
+                    b.ToTable("discord_user_channel", "brobot");
                 });
 
             modelBuilder.Entity("Brobot.Api.Entities.EventResponse", b =>
                 {
                     b.Property<int>("EventResponseId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
                         .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
 
                     b.Property<decimal?>("ChannelId")
-                        .HasColumnName("channel_id")
-                        .HasColumnType("numeric(20,0)");
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("channel_id");
 
                     b.Property<int>("DiscordEventId")
-                        .HasColumnName("discord_event_id")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("discord_event_id");
 
                     b.Property<string>("MessageText")
-                        .HasColumnName("message_text")
+                        .HasMaxLength(1024)
                         .HasColumnType("character varying(1024)")
-                        .HasMaxLength(1024);
+                        .HasColumnName("message_text");
 
                     b.Property<string>("ResponseText")
                         .IsRequired()
-                        .HasColumnName("response_text")
+                        .HasMaxLength(1024)
                         .HasColumnType("character varying(1024)")
-                        .HasMaxLength(1024);
+                        .HasColumnName("response_text");
 
                     b.HasKey("EventResponseId");
 
@@ -146,117 +146,117 @@ namespace Brobot.Api.Migrations
 
                     b.HasIndex("DiscordEventId");
 
-                    b.ToTable("event_response","brobot");
+                    b.ToTable("event_response", "brobot");
                 });
 
             modelBuilder.Entity("Brobot.Api.Entities.Job", b =>
                 {
                     b.Property<int>("JobId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
                         .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
 
                     b.Property<DateTime>("CreatedDateUtc")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("created_date_utc")
                         .HasColumnType("timestamp without time zone")
+                        .HasColumnName("created_date_utc")
                         .HasDefaultValueSql("now() at time zone 'utc'");
 
                     b.Property<string>("CronTrigger")
                         .IsRequired()
-                        .HasColumnName("cron_trigger")
+                        .HasMaxLength(16)
                         .HasColumnType("character varying(16)")
-                        .HasMaxLength(16);
+                        .HasColumnName("cron_trigger");
 
                     b.Property<string>("Description")
-                        .HasColumnName("description")
+                        .HasMaxLength(1024)
                         .HasColumnType("character varying(1024)")
-                        .HasMaxLength(1024);
+                        .HasColumnName("description");
 
                     b.Property<int>("JobDefinitionId")
-                        .HasColumnName("job_definition_id")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("job_definition_id");
 
                     b.Property<DateTime?>("ModifiedDateUtc")
-                        .HasColumnName("modified_date_utc")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("modified_date_utc");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnName("name")
+                        .HasMaxLength(64)
                         .HasColumnType("character varying(64)")
-                        .HasMaxLength(64);
+                        .HasColumnName("name");
 
                     b.HasKey("JobId");
 
                     b.HasIndex("JobDefinitionId");
 
-                    b.ToTable("job","brobot");
+                    b.ToTable("job", "brobot");
                 });
 
             modelBuilder.Entity("Brobot.Api.Entities.JobChannel", b =>
                 {
                     b.Property<decimal>("ChannelId")
-                        .HasColumnName("channel_id")
-                        .HasColumnType("numeric(20,0)");
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("channel_id");
 
                     b.Property<int>("JobId")
-                        .HasColumnName("job_id")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("job_id");
 
                     b.HasKey("ChannelId", "JobId");
 
                     b.HasIndex("JobId");
 
-                    b.ToTable("job_channel","brobot");
+                    b.ToTable("job_channel", "brobot");
                 });
 
             modelBuilder.Entity("Brobot.Api.Entities.JobDefinition", b =>
                 {
                     b.Property<int>("JobDefinitionId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
                         .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
 
                     b.Property<string>("Description")
-                        .HasColumnName("description")
+                        .HasMaxLength(1024)
                         .HasColumnType("character varying(1024)")
-                        .HasMaxLength(1024);
+                        .HasColumnName("description");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnName("name")
+                        .HasMaxLength(32)
                         .HasColumnType("character varying(32)")
-                        .HasMaxLength(32);
+                        .HasColumnName("name");
 
                     b.HasKey("JobDefinitionId");
 
-                    b.ToTable("job_definition","brobot");
+                    b.ToTable("job_definition", "brobot");
                 });
 
             modelBuilder.Entity("Brobot.Api.Entities.JobParameter", b =>
                 {
                     b.Property<int>("JobParameterId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
                         .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
 
                     b.Property<int>("JobId")
-                        .HasColumnName("job_id")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("job_id");
 
                     b.Property<int>("JobParameterDefinitionId")
-                        .HasColumnName("job_parameter_definition_id")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("job_parameter_definition_id");
 
                     b.Property<string>("Value")
                         .IsRequired()
-                        .HasColumnName("value")
+                        .HasMaxLength(1024)
                         .HasColumnType("character varying(1024)")
-                        .HasMaxLength(1024);
+                        .HasColumnName("value");
 
                     b.HasKey("JobParameterId");
 
@@ -264,88 +264,88 @@ namespace Brobot.Api.Migrations
 
                     b.HasIndex("JobParameterDefinitionId");
 
-                    b.ToTable("job_parameter","brobot");
+                    b.ToTable("job_parameter", "brobot");
                 });
 
             modelBuilder.Entity("Brobot.Api.Entities.JobParameterDefinition", b =>
                 {
                     b.Property<int>("JobParameterDefinitionId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
                         .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
 
                     b.Property<string>("DataType")
                         .IsRequired()
-                        .HasColumnName("data_type")
+                        .HasMaxLength(16)
                         .HasColumnType("character varying(16)")
-                        .HasMaxLength(16);
+                        .HasColumnName("data_type");
 
                     b.Property<string>("Description")
-                        .HasColumnName("description")
+                        .HasMaxLength(1024)
                         .HasColumnType("character varying(1024)")
-                        .HasMaxLength(1024);
+                        .HasColumnName("description");
 
                     b.Property<bool>("IsRequired")
-                        .HasColumnName("is_required")
-                        .HasColumnType("boolean");
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_required");
 
                     b.Property<int>("JobDefinitionId")
-                        .HasColumnName("job_definition_id")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("job_definition_id");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnName("name")
+                        .HasMaxLength(32)
                         .HasColumnType("character varying(32)")
-                        .HasMaxLength(32);
+                        .HasColumnName("name");
 
                     b.Property<bool>("UserConfigurable")
-                        .HasColumnName("user_configurable")
-                        .HasColumnType("boolean");
+                        .HasColumnType("boolean")
+                        .HasColumnName("user_configurable");
 
                     b.HasKey("JobParameterDefinitionId");
 
                     b.HasIndex("JobDefinitionId");
 
-                    b.ToTable("job_parameter_definition","brobot");
+                    b.ToTable("job_parameter_definition", "brobot");
                 });
 
             modelBuilder.Entity("Brobot.Api.Entities.Reminder", b =>
                 {
                     b.Property<int>("ReminderId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
                         .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
 
                     b.Property<decimal>("ChannelId")
-                        .HasColumnName("channel_id")
-                        .HasColumnType("numeric(20,0)");
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("channel_id");
 
                     b.Property<DateTime>("CreatedDateUtc")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("created_date_utc")
                         .HasColumnType("timestamp without time zone")
+                        .HasColumnName("created_date_utc")
                         .HasDefaultValueSql("now() at time zone 'utc'");
 
                     b.Property<string>("Message")
                         .IsRequired()
-                        .HasColumnName("message")
+                        .HasMaxLength(1024)
                         .HasColumnType("character varying(1024)")
-                        .HasMaxLength(1024);
+                        .HasColumnName("message");
 
                     b.Property<decimal?>("OwnerId")
-                        .HasColumnName("owner_id")
-                        .HasColumnType("numeric(20,0)");
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("owner_id");
 
                     b.Property<DateTime>("ReminderDateUtc")
-                        .HasColumnName("reminder_date_utc")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("reminder_date_utc");
 
                     b.Property<DateTime?>("SentDateUtc")
-                        .HasColumnName("sent_date_utc")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("sent_date_utc");
 
                     b.HasKey("ReminderId");
 
@@ -353,34 +353,34 @@ namespace Brobot.Api.Migrations
 
                     b.HasIndex("OwnerId");
 
-                    b.ToTable("reminder","brobot");
+                    b.ToTable("reminder", "brobot");
                 });
 
             modelBuilder.Entity("Brobot.Api.Entities.SecretSantaEvent", b =>
                 {
                     b.Property<int>("SecretSantaEventId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
                         .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
 
                     b.Property<decimal?>("CreatedById")
-                        .HasColumnName("created_by_id")
-                        .HasColumnType("numeric(20,0)");
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("created_by_id");
 
                     b.Property<DateTime>("CreatedDateUtc")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("created_date_utc")
                         .HasColumnType("timestamp without time zone")
+                        .HasColumnName("created_date_utc")
                         .HasDefaultValueSql("now() at time zone 'utc'");
 
                     b.Property<int>("SecretSantaGroupId")
-                        .HasColumnName("secret_santa_group_id")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("secret_santa_group_id");
 
                     b.Property<int>("Year")
-                        .HasColumnName("year")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("year");
 
                     b.HasKey("SecretSantaEventId");
 
@@ -395,64 +395,64 @@ namespace Brobot.Api.Migrations
                 {
                     b.Property<int>("SecretSantaGroupId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
                         .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
 
                     b.Property<bool?>("CheckPastYearPairings")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("check_past_year_pairings")
                         .HasColumnType("boolean")
-                        .HasDefaultValue(true);
+                        .HasDefaultValue(true)
+                        .HasColumnName("check_past_year_pairings");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnName("name")
+                        .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
-                        .HasMaxLength(100);
+                        .HasColumnName("name");
 
                     b.HasKey("SecretSantaGroupId");
 
-                    b.ToTable("secret_santa_group","brobot");
+                    b.ToTable("secret_santa_group", "brobot");
                 });
 
             modelBuilder.Entity("Brobot.Api.Entities.SecretSantaGroupDiscordUser", b =>
                 {
                     b.Property<int>("SecretSantaGroupId")
-                        .HasColumnName("secret_santa_group_id")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("secret_santa_group_id");
 
                     b.Property<decimal>("DiscordUserId")
-                        .HasColumnName("discord_user_id")
-                        .HasColumnType("numeric(20,0)");
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("discord_user_id");
 
                     b.HasKey("SecretSantaGroupId", "DiscordUserId");
 
                     b.HasIndex("DiscordUserId");
 
-                    b.ToTable("secret_santa_group_discord_user","brobot");
+                    b.ToTable("secret_santa_group_discord_user", "brobot");
                 });
 
             modelBuilder.Entity("Brobot.Api.Entities.SecretSantaPairing", b =>
                 {
                     b.Property<int>("SecretSantaPairingId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
                         .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
 
                     b.Property<decimal>("GiverId")
-                        .HasColumnName("giver_id")
-                        .HasColumnType("numeric(20,0)");
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("giver_id");
 
                     b.Property<decimal>("RecipientId")
-                        .HasColumnName("recipient_id")
-                        .HasColumnType("numeric(20,0)");
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("recipient_id");
 
                     b.Property<int>("SecretSantaEventId")
-                        .HasColumnName("secret_santa_event_id")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("secret_santa_event_id");
 
                     b.HasKey("SecretSantaPairingId");
 
@@ -469,18 +469,36 @@ namespace Brobot.Api.Migrations
                 {
                     b.Property<decimal>("ServerId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
-                        .HasColumnType("numeric(20,0)");
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("id");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnName("name")
+                        .HasMaxLength(128)
                         .HasColumnType("character varying(128)")
-                        .HasMaxLength(128);
+                        .HasColumnName("name");
 
                     b.HasKey("ServerId");
 
-                    b.ToTable("server","brobot");
+                    b.ToTable("server", "brobot");
+                });
+
+            modelBuilder.Entity("Brobot.Api.Entities.StopWord", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<string>("Word")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("word");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("stop_word");
                 });
 
             modelBuilder.Entity("Brobot.Api.Entities.Channel", b =>
@@ -490,6 +508,8 @@ namespace Brobot.Api.Migrations
                         .HasForeignKey("ServerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Server");
                 });
 
             modelBuilder.Entity("Brobot.Api.Entities.DiscordUserChannel", b =>
@@ -505,6 +525,10 @@ namespace Brobot.Api.Migrations
                         .HasForeignKey("DiscordUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Channel");
+
+                    b.Navigation("DiscordUser");
                 });
 
             modelBuilder.Entity("Brobot.Api.Entities.EventResponse", b =>
@@ -519,6 +543,10 @@ namespace Brobot.Api.Migrations
                         .HasForeignKey("DiscordEventId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Channel");
+
+                    b.Navigation("DiscordEvent");
                 });
 
             modelBuilder.Entity("Brobot.Api.Entities.Job", b =>
@@ -528,6 +556,8 @@ namespace Brobot.Api.Migrations
                         .HasForeignKey("JobDefinitionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("JobDefinition");
                 });
 
             modelBuilder.Entity("Brobot.Api.Entities.JobChannel", b =>
@@ -543,6 +573,10 @@ namespace Brobot.Api.Migrations
                         .HasForeignKey("JobId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Channel");
+
+                    b.Navigation("Job");
                 });
 
             modelBuilder.Entity("Brobot.Api.Entities.JobParameter", b =>
@@ -558,6 +592,10 @@ namespace Brobot.Api.Migrations
                         .HasForeignKey("JobParameterDefinitionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Job");
+
+                    b.Navigation("JobParameterDefinition");
                 });
 
             modelBuilder.Entity("Brobot.Api.Entities.JobParameterDefinition", b =>
@@ -567,6 +605,8 @@ namespace Brobot.Api.Migrations
                         .HasForeignKey("JobDefinitionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("JobDefinition");
                 });
 
             modelBuilder.Entity("Brobot.Api.Entities.Reminder", b =>
@@ -581,6 +621,10 @@ namespace Brobot.Api.Migrations
                         .WithMany("Reminders")
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Channel");
+
+                    b.Navigation("Owner");
                 });
 
             modelBuilder.Entity("Brobot.Api.Entities.SecretSantaEvent", b =>
@@ -595,6 +639,10 @@ namespace Brobot.Api.Migrations
                         .HasForeignKey("SecretSantaGroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("SecretSantaGroup");
                 });
 
             modelBuilder.Entity("Brobot.Api.Entities.SecretSantaGroupDiscordUser", b =>
@@ -610,6 +658,10 @@ namespace Brobot.Api.Migrations
                         .HasForeignKey("SecretSantaGroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("DiscordUser");
+
+                    b.Navigation("SecretSantaGroup");
                 });
 
             modelBuilder.Entity("Brobot.Api.Entities.SecretSantaPairing", b =>
@@ -631,6 +683,79 @@ namespace Brobot.Api.Migrations
                         .HasForeignKey("SecretSantaEventId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Giver");
+
+                    b.Navigation("Recipient");
+
+                    b.Navigation("SecretSantaEvent");
+                });
+
+            modelBuilder.Entity("Brobot.Api.Entities.Channel", b =>
+                {
+                    b.Navigation("DiscordUserChannels");
+
+                    b.Navigation("EventResponses");
+
+                    b.Navigation("JobChannels");
+
+                    b.Navigation("Reminders");
+                });
+
+            modelBuilder.Entity("Brobot.Api.Entities.DiscordEvent", b =>
+                {
+                    b.Navigation("EventResponses");
+                });
+
+            modelBuilder.Entity("Brobot.Api.Entities.DiscordUser", b =>
+                {
+                    b.Navigation("DiscordUserChannels");
+
+                    b.Navigation("GiverPairings");
+
+                    b.Navigation("RecipientPairings");
+
+                    b.Navigation("Reminders");
+
+                    b.Navigation("SecretSantaEvents");
+
+                    b.Navigation("SecretSantaGroupDiscordUsers");
+                });
+
+            modelBuilder.Entity("Brobot.Api.Entities.Job", b =>
+                {
+                    b.Navigation("JobChannels");
+
+                    b.Navigation("JobParameters");
+                });
+
+            modelBuilder.Entity("Brobot.Api.Entities.JobDefinition", b =>
+                {
+                    b.Navigation("JobParameterDefinitions");
+
+                    b.Navigation("Jobs");
+                });
+
+            modelBuilder.Entity("Brobot.Api.Entities.JobParameterDefinition", b =>
+                {
+                    b.Navigation("JobParameters");
+                });
+
+            modelBuilder.Entity("Brobot.Api.Entities.SecretSantaEvent", b =>
+                {
+                    b.Navigation("SecretSantaPairings");
+                });
+
+            modelBuilder.Entity("Brobot.Api.Entities.SecretSantaGroup", b =>
+                {
+                    b.Navigation("SecretSantaEvents");
+
+                    b.Navigation("SecretSantaGroupDiscordUsers");
+                });
+
+            modelBuilder.Entity("Brobot.Api.Entities.Server", b =>
+                {
+                    b.Navigation("Channels");
                 });
 #pragma warning restore 612, 618
         }

@@ -115,5 +115,11 @@ namespace Brobot.Core.Services
         /// <param name="jobId">The id of the job</param>
         /// <returns>The job</returns>
         Task<Job> GetJob(int jobId);
+
+        /// <summary>
+        /// Gets the word cloud stop words
+        /// </summary>
+        /// <returns>The stop words</returns>
+        Task<IEnumerable<StopWord>> GetStopWords();
     }
 }

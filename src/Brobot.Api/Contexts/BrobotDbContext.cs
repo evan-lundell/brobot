@@ -22,6 +22,7 @@ namespace Brobot.Api.Contexts
         public DbSet<Reminder> Reminders { get; set; }
         public DbSet<Job> Jobs { get; set; }
         public DbSet<SecretSantaGroup> SecretSantaGroups { get; set; }
+        public DbSet<StopWord> StopWords { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -420,6 +421,17 @@ namespace Brobot.Api.Contexts
                 .WithMany(du => du.GiverPairings)
                 .HasForeignKey(ssp => ssp.GiverId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<StopWord>()
+                .ToTable("stop_word")
+                .HasKey(sw => sw.Id);
+            builder.Entity<StopWord>()
+                .Property(sw => sw.Id)
+                .HasColumnName("id");
+            builder.Entity<StopWord>()
+                .Property(sw => sw.Word)
+                .HasColumnName("word")
+                .IsRequired(true);
         }
     }
 }

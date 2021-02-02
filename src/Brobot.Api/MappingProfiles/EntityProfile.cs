@@ -58,6 +58,7 @@ namespace Brobot.Api.MappingProfiles
             CreateMap<Entities.SecretSantaGroupDiscordUser, Models.SecretSantaGroupDiscordUser>().ReverseMap();
             CreateMap<Entities.SecretSantaEvent, Models.SecretSantaEvent>().ReverseMap();
             CreateMap<Entities.SecretSantaPairing, Models.SecretSantaPairing>().ReverseMap();
+            CreateMap<Entities.StopWord, Models.StopWord>().ReverseMap();
         }
     }
 }
