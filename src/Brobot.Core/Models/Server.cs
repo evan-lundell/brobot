@@ -9,10 +9,12 @@ namespace Brobot.Core.Models
         public ulong ServerId { get; set; }
         public string Name { get; set; }
         public IEnumerable<Channel> Channels { get; set; }
+        public IEnumerable<VoiceChannel> VoiceChannels { get; set; }
 
         public Server()
         {
             Channels = new List<Channel>();
+            VoiceChannels = new List<VoiceChannel>();
         }
     }
 }

@@ -1,11 +1,13 @@
 ﻿using Brobot.Commands.Services;
 using Brobot.Core.Models;
 using Brobot.Core.Services;
+using Discord;
 using Discord.Commands;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Brobot.Commands.Modules
 {
@@ -172,6 +174,47 @@ namespace Brobot.Commands.Modules
             catch (Exception)
             {
                 await ReplyAsync("Failed to get random gif");
+            }
+        }
+
+        [Command("hotop")]
+        [Summary("Gets the scores for the active hot ops")]
+        public async Task HotOp()
+        {
+            try
+            {
+                var hotOpScoreboards = await BrobotService.GetHotOpScoreboards(Context.Channel.Id);
+
+                if (hotOpScoreboards.Count() == 0)
+                {
+                    await ReplyAsync("No current hot ops");
+                    return;
+                }
+
+                foreach (var hotOpScoreboard in hotOpScoreboards)
+                {
+                    var builder = new EmbedBuilder
+                    {
+                        Color = new Color(114, 137, 218),
+                        Description = $"Operation Hot {hotOpScoreboard.HotOpOwnerName}"
+                    };
+
+                    foreach (var score in hotOpScoreboard.Scores.OrderByDescending(s => s.Score))
+                    {
+                        builder.AddField(x =>
+                        {
+                            x.Name = score.DiscordUserName;
+                            x.Value = score.Score;
+                            x.IsInline = false;
+                        });
+                    }
+
+                    await ReplyAsync("", false, builder.Build());
+                }
+            }
+            catch (Exception)
+            {
+                await ReplyAsync("Failed to get hot op scores");
             }
         }
     }

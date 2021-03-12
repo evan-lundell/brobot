@@ -84,6 +84,7 @@ namespace Brobot.Api.Controllers
                     .Include(s => s.Channels)
                     .ThenInclude(c => c.DiscordUserChannels)
                     .ThenInclude(duc => duc.DiscordUser)
+                    .Include(s => s.VoiceChannels)
                     .ToListAsync();
 
                 var existingUsers = await Context.DiscordUsers
@@ -119,6 +120,8 @@ namespace Brobot.Api.Controllers
                 foreach (var serverModel in servers)
                 {
                     var serverEntity = existingServers.FirstOrDefault(entity => entity.ServerId == serverModel.ServerId);
+                    
+                    // new server
                     if (serverEntity == null)
                     {
                         serverEntity = Mapper.Map<Entities.Server>(serverModel);
@@ -166,6 +169,14 @@ namespace Brobot.Api.Controllers
                         serverEntity.Channels.Remove(removedChannel);
                     }
 
+                    var removedVoiceChannels = serverEntity.VoiceChannels
+                        .Where(entity => !serverModel.VoiceChannels.Any(model => model.Id == entity.Id))
+                        .ToList();
+                    foreach (var removedVoiceChannel in removedVoiceChannels)
+                    {
+                        serverEntity.VoiceChannels.Remove(removedVoiceChannel);
+                    }
+
                     foreach (var channelModel in serverModel.Channels)
                     {
                         var channelEntity = serverEntity.Channels.FirstOrDefault(c => c.ChannelId == channelModel.ChannelId);
@@ -198,6 +209,22 @@ namespace Brobot.Api.Controllers
                                 };
                                 await Context.DiscordUserChannels.AddAsync(discordUserChannel);
                             }
+                        }
+                    }
+
+                    foreach (var voiceChannelModel in serverModel.VoiceChannels)
+                    {
+                        var voiceChannelEntity = serverEntity.VoiceChannels.FirstOrDefault(vc => vc.Id == voiceChannelModel.Id);
+                        if (voiceChannelEntity == null)
+                        {
+                            voiceChannelEntity = Mapper.Map<Models.VoiceChannel, Entities.VoiceChannel>(voiceChannelModel);
+                            voiceChannelEntity.Server = serverEntity;
+                            voiceChannelEntity.ServerId = serverEntity.ServerId;
+                            await Context.VoiceChannels.AddAsync(voiceChannelEntity);
+                        }
+                        else
+                        {
+                            voiceChannelEntity.Name = voiceChannelModel.Name;
                         }
                     }
                 }

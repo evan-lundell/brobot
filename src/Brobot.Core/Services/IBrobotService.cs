@@ -121,5 +121,37 @@ namespace Brobot.Core.Services
         /// </summary>
         /// <returns>The stop words</returns>
         Task<IEnumerable<StopWord>> GetStopWords();
+
+        /// <summary>
+        /// Gets hot ops
+        /// </summary>
+        /// <param name="activeOnly">Specifies whether or not to return only active hot ops</param>
+        /// <returns>The hot ops</returns>
+        Task<IEnumerable<HotOp>> GetHotOps(bool activeOnly = false, DateTime? startDateTimeUtc = null, DateTime? endDateTimeUtc = null);
+
+        /// <summary>
+        /// Creates a hot op session
+        /// </summary>
+        /// <param name="hotOpId">The id of the hot op</param>
+        /// <param name="session">The session</param>
+        /// <returns>The updated session</returns>
+        Task<HotOpSession> CreateHotOpSession(int hotOpId, HotOpSession session);
+
+        /// <summary>
+        /// Updates a hot op session
+        /// </summary>
+        /// <param name="hotOpId">The id of the hot op</param>
+        /// <param name="session">The session</param>
+        /// <returns>The updated session</returns>
+        Task<HotOpSession> UpdateHotOpSession(int hotOpId, HotOpSession session);
+
+        /// <summary>
+        /// Gets the hot op scoreboards for the 
+        /// </summary>
+        /// <param name="channelId"></param>
+        /// <returns></returns>
+        Task<IEnumerable<HotOpScoreboard>> GetHotOpScoreboards(ulong channelId);
+
+        Task<HotOpScoreboard> GetHotOpScoreboard(int id, ulong? channelId = null);
     }
 }

@@ -17,6 +17,7 @@ namespace Brobot.Api.Entities
         public ICollection<EventResponse> EventResponses { get; set; }
         public ICollection<Reminder> Reminders { get; set; }
         public ICollection<JobChannel> JobChannels { get; set; }
+        public ICollection<HotOp> HotOps { get; set; }
 
         public Channel()
         {
@@ -24,6 +25,7 @@ namespace Brobot.Api.Entities
             EventResponses = new HashSet<EventResponse>();
             Reminders = new HashSet<Reminder>();
             JobChannels = new HashSet<JobChannel>();
+            HotOps = new HashSet<HotOp>();
         }
     }
 }

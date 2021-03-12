@@ -149,6 +149,78 @@ namespace Brobot.Api.Migrations
                     b.ToTable("event_response", "brobot");
                 });
 
+            modelBuilder.Entity("Brobot.Api.Entities.HotOp", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<DateTime>("EndDateTimeUtc")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("end_datetime_utc");
+
+                    b.Property<decimal>("OwnerId")
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("owner_id");
+
+                    b.Property<decimal?>("PrimaryChannelId")
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("primary_channel_id");
+
+                    b.Property<DateTime>("StartDateTimeUtc")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("start_datetime_utc");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerId");
+
+                    b.HasIndex("PrimaryChannelId");
+
+                    b.ToTable("hot_op", "brobot");
+                });
+
+            modelBuilder.Entity("Brobot.Api.Entities.HotOpSession", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<decimal>("DiscordUserId")
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("discord_user_id");
+
+                    b.Property<DateTime?>("EndDateTimeUtc")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("end_datetime_utc");
+
+                    b.Property<int>("HotOpId")
+                        .HasColumnType("integer")
+                        .HasColumnName("hot_op_id");
+
+                    b.Property<DateTime>("StartDateTimeUtc")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("start_datetime_utc");
+
+                    b.Property<decimal>("VoiceChannelId")
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("voice_channel_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DiscordUserId");
+
+                    b.HasIndex("HotOpId");
+
+                    b.HasIndex("VoiceChannelId");
+
+                    b.ToTable("hot_op_session", "brobot");
+                });
+
             modelBuilder.Entity("Brobot.Api.Entities.Job", b =>
                 {
                     b.Property<int>("JobId")
@@ -501,6 +573,30 @@ namespace Brobot.Api.Migrations
                     b.ToTable("stop_word");
                 });
 
+            modelBuilder.Entity("Brobot.Api.Entities.VoiceChannel", b =>
+                {
+                    b.Property<decimal>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("name");
+
+                    b.Property<decimal>("ServerId")
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("server_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ServerId");
+
+                    b.ToTable("voice_channel", "brobot");
+                });
+
             modelBuilder.Entity("Brobot.Api.Entities.Channel", b =>
                 {
                     b.HasOne("Brobot.Api.Entities.Server", "Server")
@@ -547,6 +643,51 @@ namespace Brobot.Api.Migrations
                     b.Navigation("Channel");
 
                     b.Navigation("DiscordEvent");
+                });
+
+            modelBuilder.Entity("Brobot.Api.Entities.HotOp", b =>
+                {
+                    b.HasOne("Brobot.Api.Entities.DiscordUser", "Owner")
+                        .WithMany("HotOps")
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Brobot.Api.Entities.Channel", "PrimaryChannel")
+                        .WithMany("HotOps")
+                        .HasForeignKey("PrimaryChannelId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Owner");
+
+                    b.Navigation("PrimaryChannel");
+                });
+
+            modelBuilder.Entity("Brobot.Api.Entities.HotOpSession", b =>
+                {
+                    b.HasOne("Brobot.Api.Entities.DiscordUser", "DiscordUser")
+                        .WithMany("HotOpSessions")
+                        .HasForeignKey("DiscordUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Brobot.Api.Entities.HotOp", "HotOp")
+                        .WithMany("Sessions")
+                        .HasForeignKey("HotOpId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Brobot.Api.Entities.VoiceChannel", "VoiceChannel")
+                        .WithMany("HotOpSessions")
+                        .HasForeignKey("VoiceChannelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DiscordUser");
+
+                    b.Navigation("HotOp");
+
+                    b.Navigation("VoiceChannel");
                 });
 
             modelBuilder.Entity("Brobot.Api.Entities.Job", b =>
@@ -691,11 +832,24 @@ namespace Brobot.Api.Migrations
                     b.Navigation("SecretSantaEvent");
                 });
 
+            modelBuilder.Entity("Brobot.Api.Entities.VoiceChannel", b =>
+                {
+                    b.HasOne("Brobot.Api.Entities.Server", "Server")
+                        .WithMany("VoiceChannels")
+                        .HasForeignKey("ServerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Server");
+                });
+
             modelBuilder.Entity("Brobot.Api.Entities.Channel", b =>
                 {
                     b.Navigation("DiscordUserChannels");
 
                     b.Navigation("EventResponses");
+
+                    b.Navigation("HotOps");
 
                     b.Navigation("JobChannels");
 
@@ -713,6 +867,10 @@ namespace Brobot.Api.Migrations
 
                     b.Navigation("GiverPairings");
 
+                    b.Navigation("HotOps");
+
+                    b.Navigation("HotOpSessions");
+
                     b.Navigation("RecipientPairings");
 
                     b.Navigation("Reminders");
@@ -720,6 +878,11 @@ namespace Brobot.Api.Migrations
                     b.Navigation("SecretSantaEvents");
 
                     b.Navigation("SecretSantaGroupDiscordUsers");
+                });
+
+            modelBuilder.Entity("Brobot.Api.Entities.HotOp", b =>
+                {
+                    b.Navigation("Sessions");
                 });
 
             modelBuilder.Entity("Brobot.Api.Entities.Job", b =>
@@ -756,6 +919,13 @@ namespace Brobot.Api.Migrations
             modelBuilder.Entity("Brobot.Api.Entities.Server", b =>
                 {
                     b.Navigation("Channels");
+
+                    b.Navigation("VoiceChannels");
+                });
+
+            modelBuilder.Entity("Brobot.Api.Entities.VoiceChannel", b =>
+                {
+                    b.Navigation("HotOpSessions");
                 });
 #pragma warning restore 612, 618
         }

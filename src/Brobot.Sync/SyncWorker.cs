@@ -146,8 +146,19 @@ namespace Brobot.Sync
             foreach (var guild in _discordClient.Guilds)
             {
                 var channels = new List<Channel>();
+                var voiceChannels = new List<VoiceChannel>();
                 foreach (var channel in guild.Channels)
                 {
+                    if (channel is SocketVoiceChannel voiceChannel)
+                    {
+                        voiceChannels.Add(new VoiceChannel
+                        {
+                            Id = voiceChannel.Id,
+                            Name = voiceChannel.Name
+                        });
+                        continue;
+                    }
+
                     if (!(channel is SocketTextChannel textChannel))
                     {
                         continue;
@@ -184,7 +195,8 @@ namespace Brobot.Sync
                 {
                     ServerId = guild.Id,
                     Name = guild.Name,
-                    Channels = channels
+                    Channels = channels,
+                    VoiceChannels = voiceChannels
                 });
             }
 

@@ -360,5 +360,121 @@ namespace Brobot.Core.Services
                 throw new BrobotServiceException("Failed to get stop words", ex);
             }
         }
+
+        public async Task<IEnumerable<HotOp>> GetHotOps(bool activeOnly = false, DateTime? startDateTimeUtc = null, DateTime? endDateTimeUtc = null)
+        {
+            try
+            {
+                var queryString = string.Empty;
+                List<string> queryParams = new List<string>();
+
+                if (activeOnly)
+                {
+                    queryParams.Add($"activeOnly=true");
+                }
+
+                if (startDateTimeUtc.HasValue)
+                {
+                    // We don't want to include seconds for the start date check
+                    queryParams.Add($"startDateTimeUtc={startDateTimeUtc.Value.ToString("yyyy-MM-ddTHH:mm")}");
+                }
+
+                if (endDateTimeUtc.HasValue)
+                {
+                    // We don't want to include seconds for the end date check
+                    queryParams.Add($"endDateTimeUtc={endDateTimeUtc.Value.ToString("yyyy-MM-ddTHH:mm")}");
+                }
+
+                if (queryParams.Count > 0)
+                {
+                    queryString = string.Concat("?", string.Join("&", queryParams));
+                }
+
+                var response = await _client.GetStringAsync($"hotops{queryString}");
+                return JsonConvert.DeserializeObject<IEnumerable<HotOp>>(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to get hot ops");
+                throw new BrobotServiceException("Failed to get hot ops", ex);
+            }
+        }
+
+        public async Task<HotOpSession> CreateHotOpSession(int hotOpId, HotOpSession session)
+        {
+            try
+            {
+                var content = new StringContent(JsonConvert.SerializeObject(session), Encoding.UTF8, "application/json");
+                var response = await _client.PostAsync($"hotops/{hotOpId}/sessions", content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new BrobotServiceException($"Failed to create hot op session for hot op {hotOpId} with a status code of {response.StatusCode}");
+                }
+
+                var sessionResponseString = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<HotOpSession>(sessionResponseString);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to create hot op session");
+                throw new BrobotServiceException("Failed to create hot op session", ex);
+            }
+        }
+
+        public async Task<HotOpSession> UpdateHotOpSession(int hotOpId, HotOpSession session)
+        {
+            try
+            {
+                var content = new StringContent(JsonConvert.SerializeObject(session), Encoding.UTF8, "application/json");
+                var response = await _client.PutAsync($"hotops/{hotOpId}/sessions/{session.Id}", content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new BrobotServiceException($"Failed to update hot op session {session.Id} for hot op {hotOpId} with a status code of {response.StatusCode}");
+                }
+
+                var sessionResponseString = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<HotOpSession>(sessionResponseString);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to update hot op session");
+                throw new BrobotServiceException("Failed to update hot op session", ex);
+            }
+        }
+
+        public async Task<IEnumerable<HotOpScoreboard>> GetHotOpScoreboards(ulong channelId)
+        {
+            try
+            {
+                var response = await _client.GetStringAsync($"channels/{channelId}/hotopscoreboards");
+                return JsonConvert.DeserializeObject<IEnumerable<HotOpScoreboard>>(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to update hot op session");
+                throw new BrobotServiceException("Failed to update hot op session", ex);
+            }
+        }
+
+        public async Task<HotOpScoreboard> GetHotOpScoreboard(int id, ulong? channelId = null)
+        {
+            try
+            {
+                string queryString = "";
+                if (channelId.HasValue)
+                {
+                    queryString = $"?channelId={channelId}";
+                }
+                var response = await _client.GetStringAsync($"hotops/{id}/scoreboard" + queryString);
+                return JsonConvert.DeserializeObject<HotOpScoreboard>(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to update hot op session");
+                throw new BrobotServiceException("Failed to update hot op session", ex);
+            }
+        }
     }
 }

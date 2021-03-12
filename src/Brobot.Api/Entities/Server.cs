@@ -11,10 +11,12 @@ namespace Brobot.Api.Entities
         public string Name { get; set; }
 
         public ICollection<Channel> Channels { get; set; }
+        public ICollection<VoiceChannel> VoiceChannels { get; set; }
 
         public Server()
         {
             Channels = new HashSet<Channel>();
+            VoiceChannels = new HashSet<VoiceChannel>();
         }
     }
 }

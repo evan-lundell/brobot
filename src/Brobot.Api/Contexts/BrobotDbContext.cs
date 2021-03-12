@@ -23,6 +23,8 @@ namespace Brobot.Api.Contexts
         public DbSet<Job> Jobs { get; set; }
         public DbSet<SecretSantaGroup> SecretSantaGroups { get; set; }
         public DbSet<StopWord> StopWords { get; set; }
+        public DbSet<VoiceChannel> VoiceChannels { get; set; }
+        public DbSet<HotOp> HotOps { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -432,6 +434,92 @@ namespace Brobot.Api.Contexts
                 .Property(sw => sw.Word)
                 .HasColumnName("word")
                 .IsRequired(true);
+
+            builder.Entity<VoiceChannel>()
+                .ToTable(name: "voice_channel", schema: "brobot")
+                .HasKey(vc => vc.Id);
+            builder.Entity<VoiceChannel>()
+                .Property(vc => vc.Id)
+                .HasColumnName("id");
+            builder.Entity<VoiceChannel>()
+                .Property(vc => vc.Name)
+                .HasColumnName("name")
+                .HasMaxLength(128)
+                .IsRequired(true);
+            builder.Entity<VoiceChannel>()
+                .Property(vc => vc.ServerId)
+                .HasColumnName("server_id");
+            builder.Entity<VoiceChannel>()
+                .HasOne(vc => vc.Server)
+                .WithMany(s => s.VoiceChannels)
+                .HasForeignKey(vc => vc.ServerId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<HotOp>()
+                .ToTable(name: "hot_op", schema: "brobot")
+                .HasKey(ho => ho.Id);
+            builder.Entity<HotOp>()
+                .Property(ho => ho.Id)
+                .HasColumnName("id");
+            builder.Entity<HotOp>()
+                .Property(ho => ho.OwnerId)
+                .HasColumnName("owner_id");
+            builder.Entity<HotOp>()
+                .Property(ho => ho.StartDateTimeUtc)
+                .HasColumnName("start_datetime_utc");
+            builder.Entity<HotOp>()
+                .Property(ho => ho.EndDateTimeUtc)
+                .HasColumnName("end_datetime_utc");
+            builder.Entity<HotOp>()
+                .Property(ho => ho.PrimaryChannelId)
+                .HasColumnName("primary_channel_id");
+            builder.Entity<HotOp>()
+                .HasOne(ho => ho.Owner)
+                .WithMany(du => du.HotOps)
+                .HasForeignKey(ho => ho.OwnerId)
+                .OnDelete(DeleteBehavior.Cascade);
+            builder.Entity<HotOp>()
+                .HasOne(ho => ho.PrimaryChannel)
+                .WithMany(c => c.HotOps)
+                .HasForeignKey(ho => ho.PrimaryChannelId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<HotOpSession>()
+                .ToTable(name: "hot_op_session", schema: "brobot")
+                .HasKey(hos => hos.Id);
+            builder.Entity<HotOpSession>()
+                .Property(hos => hos.Id)
+                .HasColumnName("id");
+            builder.Entity<HotOpSession>()
+                .Property(hos => hos.DiscordUserId)
+                .HasColumnName("discord_user_id");
+            builder.Entity<HotOpSession>()
+                .Property(hos => hos.StartDateTimeUtc)
+                .HasColumnName("start_datetime_utc");
+            builder.Entity<HotOpSession>()
+                .Property(hos => hos.EndDateTimeUtc)
+                .HasColumnName("end_datetime_utc");
+            builder.Entity<HotOpSession>()
+                .Property(hos => hos.VoiceChannelId)
+                .HasColumnName("voice_channel_id");
+            builder.Entity<HotOpSession>()
+                .Property(hos => hos.HotOpId)
+                .HasColumnName("hot_op_id");
+            builder.Entity<HotOpSession>()
+                .HasOne(hos => hos.DiscordUser)
+                .WithMany(du => du.HotOpSessions)
+                .HasForeignKey(hos => hos.DiscordUserId)
+                .OnDelete(DeleteBehavior.Cascade);
+            builder.Entity<HotOpSession>()
+                .HasOne(hos => hos.HotOp)
+                .WithMany(ho => ho.Sessions)
+                .HasForeignKey(hos => hos.HotOpId)
+                .OnDelete(DeleteBehavior.Cascade);
+            builder.Entity<HotOpSession>()
+                .HasOne(hos => hos.VoiceChannel)
+                .WithMany(vc => vc.HotOpSessions)
+                .HasForeignKey(hos => hos.VoiceChannelId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

@@ -19,6 +19,8 @@ namespace Brobot.Api.Entities
         public ICollection<SecretSantaEvent> SecretSantaEvents { get; set; }
         public ICollection<SecretSantaPairing> GiverPairings { get; set; }
         public ICollection<SecretSantaPairing> RecipientPairings { get; set; }
+        public ICollection<HotOp> HotOps { get; set; }
+        public ICollection<HotOpSession> HotOpSessions { get; set; }
 
         public DiscordUser()
         {
@@ -28,6 +30,8 @@ namespace Brobot.Api.Entities
             SecretSantaEvents = new HashSet<SecretSantaEvent>();
             GiverPairings = new HashSet<SecretSantaPairing>();
             RecipientPairings = new HashSet<SecretSantaPairing>();
+            HotOps = new HashSet<HotOp>();
+            HotOpSessions = new HashSet<HotOpSession>();
         }
     }
 }

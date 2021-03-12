@@ -51,14 +51,32 @@ namespace Brobot.Monitor
 
                 _discordClient.Log += LogDiscordMessage;
                 _discordClient.MessageReceived += MessageReceived;
-                _discordClient.ChannelUpdated += ChannelUpdated;
-                _discordClient.MessageDeleted += MessageDeleted;
+
+                _discordClient.ChannelUpdated += (oldChannel, newChannel) =>
+                {
+                    Task.Run(async () => await ChannelUpdated(oldChannel, newChannel));
+                    return Task.CompletedTask;
+                };
+
+                _discordClient.MessageDeleted += (cachedMessage, channel) =>
+                {
+                    Task.Run(async () => await MessageDeleted(cachedMessage, channel));
+                    return Task.CompletedTask;
+                };
+
+                _discordClient.UserVoiceStateUpdated += UserVoiceStateUpdated;
                 await base.StartAsync(cancellationToken);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to start ResponsesService.");
             }
+        }
+
+        private Task UserVoiceStateUpdated(SocketUser user, SocketVoiceState oldVoiceState, SocketVoiceState newVoiceState)
+        {
+            Task.Run(async () => await CheckHotOps(user, oldVoiceState, newVoiceState));
+            return Task.CompletedTask;
         }
 
         public async override Task StopAsync(CancellationToken cancellationToken)
@@ -108,29 +126,10 @@ namespace Brobot.Monitor
             }
         }
 
-        private async Task MessageReceived(SocketMessage socketMessage)
+        private Task MessageReceived(SocketMessage socketMessage)
         {
-            try
-            {
-                if (socketMessage.Author.IsBot)
-                {
-                    return;
-                }
-
-                var responses = _eventResponses[socketMessage.Channel.Id]["MessageReceived"];
-                foreach (var response in responses)
-                {
-                    if (string.IsNullOrWhiteSpace(response.MessageText) 
-                        || response.MessageText.Equals(socketMessage.Content, StringComparison.OrdinalIgnoreCase))
-                    {
-                        await socketMessage.Channel.SendMessageAsync(response.ResponseText);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning("Failed to send message received response.", ex);
-            }
+            Task.Run(async () => await CheckResponse(socketMessage));
+            return Task.CompletedTask;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -218,6 +217,137 @@ namespace Brobot.Monitor
                     break;
             }
             return Task.CompletedTask;
+        }
+
+        private async Task CheckHotOps(SocketUser user, SocketVoiceState oldVoiceState, SocketVoiceState newVoiceState)
+        {
+            try
+            {
+                if (user.IsBot)
+                {
+                    return;
+                }
+
+                var hotOps = await _brobotService.GetHotOps(true);
+                foreach (var hotOp in hotOps)
+                {
+                    if (user.Id == hotOp.Owner.DiscordUserId)
+                    {
+                        if (oldVoiceState.VoiceChannel == null || (newVoiceState.VoiceChannel != null && oldVoiceState.VoiceChannel?.Id != newVoiceState.VoiceChannel?.Id))
+                        {
+                            foreach (var connectedUser in newVoiceState.VoiceChannel.Users.Where(u => u.VoiceChannel.Id == newVoiceState.VoiceChannel.Id))
+                            {
+                                if (connectedUser.Id == user.Id || connectedUser.IsBot)
+                                {
+                                    continue;
+                                }
+
+                                var hotOpSession = new HotOpSession
+                                {
+                                    HotOpId = hotOp.Id,
+                                    DiscordUserId = connectedUser.Id,
+                                    StartDateTimeUtc = DateTime.UtcNow,
+                                    EndDateTimeUtc = null,
+                                    VoiceChannelId = newVoiceState.VoiceChannel.Id
+                                };
+
+                                await _brobotService.CreateHotOpSession(hotOp.Id, hotOpSession);
+                            }
+                        }
+
+                        if (newVoiceState.VoiceChannel == null || (oldVoiceState.VoiceChannel != null && oldVoiceState.VoiceChannel?.Id != newVoiceState.VoiceChannel?.Id))
+                        {
+                            foreach (var connectedUser in oldVoiceState.VoiceChannel.Users.Where(u => u.VoiceChannel.Id == oldVoiceState.VoiceChannel.Id))
+                            {
+                                if (connectedUser.IsBot)
+                                {
+                                    continue;
+                                }
+
+                                var hotOpSession = hotOp.Sessions.FirstOrDefault(hos => hos.DiscordUserId == connectedUser.Id
+                                    && hos.VoiceChannelId == oldVoiceState.VoiceChannel.Id
+                                    && hos.EndDateTimeUtc == null);
+                                if (hotOpSession == null)
+                                {
+                                    _logger.LogWarning($"User {connectedUser.Id} does not have a current session for hot op {hotOp.Id}");
+                                    continue;
+                                }
+
+                                hotOpSession.EndDateTimeUtc = DateTime.UtcNow;
+                                await _brobotService.UpdateHotOpSession(hotOp.Id, hotOpSession);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (oldVoiceState.VoiceChannel == null || (newVoiceState.VoiceChannel != null && oldVoiceState.VoiceChannel?.Id != newVoiceState.VoiceChannel?.Id))
+                        {
+                            if (!newVoiceState.VoiceChannel.Users.Any(u => u.Id == hotOp.Owner.DiscordUserId && u.VoiceChannel.Id == newVoiceState.VoiceChannel.Id))
+                            {
+                                continue;
+                            }
+
+                            var hotOpSession = new HotOpSession
+                            {
+                                HotOpId = hotOp.Id,
+                                StartDateTimeUtc = DateTime.UtcNow,
+                                DiscordUserId = user.Id,
+                                VoiceChannelId = newVoiceState.VoiceChannel.Id
+                            };
+                            await _brobotService.CreateHotOpSession(hotOp.Id, hotOpSession);
+                        }
+
+                        if (newVoiceState.VoiceChannel == null || (oldVoiceState.VoiceChannel != null && oldVoiceState.VoiceChannel?.Id != newVoiceState.VoiceChannel?.Id))
+                        {
+                            if (!oldVoiceState.VoiceChannel.Users.Any(u => u.Id == hotOp.Owner.DiscordUserId && u.VoiceChannel.Id == oldVoiceState.VoiceChannel.Id))
+                            {
+                                continue;
+                            }
+
+                            var hotOpSession = hotOp.Sessions.FirstOrDefault(hos => hos.DiscordUserId == user.Id
+                                    && hos.VoiceChannelId == oldVoiceState.VoiceChannel.Id
+                                    && hos.EndDateTimeUtc == null);
+                            if (hotOpSession == null)
+                            {
+                                _logger.LogWarning($"User {user.Id} does not have a current session for hot op {hotOp.Id}");
+                                continue;
+                            }
+
+                            hotOpSession.EndDateTimeUtc = DateTime.UtcNow;
+                            await _brobotService.UpdateHotOpSession(hotOp.Id, hotOpSession);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Failed to log hot op information for user {user.Id}");
+            }
+        }
+
+        private async Task CheckResponse(SocketMessage socketMessage)
+        {
+            try
+            {
+                if (socketMessage.Author.IsBot)
+                {
+                    return;
+                }
+
+                var responses = _eventResponses[socketMessage.Channel.Id]["MessageReceived"];
+                foreach (var response in responses)
+                {
+                    if (string.IsNullOrWhiteSpace(response.MessageText)
+                        || response.MessageText.Equals(socketMessage.Content, StringComparison.OrdinalIgnoreCase))
+                    {
+                        await socketMessage.Channel.SendMessageAsync(response.ResponseText);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning("Failed to send message received response.", ex);
+            }
         }
     }
 }
