@@ -32,8 +32,10 @@ namespace Brobot.Api.Controllers
                     .AsNoTracking()
                     .Include(j => j.JobParameters)
                     .ThenInclude(jp => jp.JobParameterDefinition)
+                    .AsSplitQuery()
                     .Include(j => j.JobDefinition)
                     .ThenInclude(jd => jd.JobParameterDefinitions)
+                    .AsSplitQuery()
                     .Include(j => j.JobChannels)
                     .ThenInclude(jc => jc.Channel)
                     .ToListAsync();

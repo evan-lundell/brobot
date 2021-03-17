@@ -146,12 +146,25 @@ namespace Brobot.Core.Services
         Task<HotOpSession> UpdateHotOpSession(int hotOpId, HotOpSession session);
 
         /// <summary>
-        /// Gets the hot op scoreboards for the 
+        /// Gets the hot op scoreboards for the given channel
         /// </summary>
-        /// <param name="channelId"></param>
-        /// <returns></returns>
+        /// <param name="channelId">The channel id</param>
+        /// <returns>The scoreboards</returns>
         Task<IEnumerable<HotOpScoreboard>> GetHotOpScoreboards(ulong channelId);
 
+        /// <summary>
+        /// Gets the scoreboard for the given hot op
+        /// </summary>
+        /// <param name="id">The hot op id</param>
+        /// <param name="channelId">The channel id</param>
+        /// <returns>the scoreboard</returns>
         Task<HotOpScoreboard> GetHotOpScoreboard(int id, ulong? channelId = null);
+
+        /// <summary>
+        /// Creates a hot op
+        /// </summary>
+        /// <param name="hotOp">The hot op</param>
+        /// <returns>The hot op</returns>
+        Task<HotOp> CreateHotOp(HotOp hotOp);
     }
 }

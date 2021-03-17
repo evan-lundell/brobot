@@ -437,6 +437,10 @@ namespace Brobot.Core.Services
                 var sessionResponseString = await response.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<HotOpSession>(sessionResponseString);
             }
+            catch (BrobotServiceException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to update hot op session");
@@ -474,6 +478,32 @@ namespace Brobot.Core.Services
             {
                 _logger.LogError(ex, "Failed to update hot op session");
                 throw new BrobotServiceException("Failed to update hot op session", ex);
+            }
+        }
+
+        public async Task<HotOp> CreateHotOp(HotOp hotOp)
+        {
+            try
+            {
+                var content = new StringContent(JsonConvert.SerializeObject(hotOp), Encoding.UTF8, "application/json");
+                var response = await _client.PostAsync("hotops", content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new BrobotServiceException($"Failed to create a hot op with the status code of {response.StatusCode}");
+                }
+
+                var responseString = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<HotOp>(responseString);
+            }
+            catch (BrobotServiceException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to create hot op");
+                throw new BrobotServiceException("Failed to create hot op", ex);
             }
         }
     }

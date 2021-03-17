@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Models = Brobot.Core.Models;
 using Entities = Brobot.Api.Entities;
+using TimeZoneConverter;
 
 namespace Brobot.Api.Controllers
 {
@@ -147,17 +148,39 @@ namespace Brobot.Api.Controllers
                     return BadRequest(new { message = $"Overlapping hot ops for user {hotOpModel.Owner} " });
                 }
 
+                var discordUser = await Context.DiscordUsers.FindAsync(hotOpModel.Owner.DiscordUserId);
+                if (discordUser == null)
+                {
+                    return BadRequest(new { message = $"Discord user {hotOpModel.Owner.DiscordUserId } does not exist" });
+                }
+
+                if (hotOpModel.PrimaryChannelId.HasValue && !await Context.Channels.AnyAsync(c => c.ChannelId == hotOpModel.PrimaryChannelId))
+                {
+                    return BadRequest(new { message = $"Channel {hotOpModel.PrimaryChannelId} does not exist" });
+                }
+
+                var startDateTime = hotOpModel.StartDateTimeUtc;
+                var endDateTime = hotOpModel.EndDateTimeUtc;
+                if (!string.IsNullOrEmpty(discordUser.Timezone))
+                {
+                    var timeZoneInfo = TZConvert.GetTimeZoneInfo(discordUser.Timezone);
+                    startDateTime = startDateTime - timeZoneInfo.GetUtcOffset(DateTime.Now);
+                    endDateTime = endDateTime - timeZoneInfo.GetUtcOffset(DateTime.Now);
+                }
+
                 var hotOpEntity = new Entities.HotOp
                 {
                     OwnerId = hotOpModel.Owner.DiscordUserId,
-                    StartDateTimeUtc = hotOpModel.StartDateTimeUtc,
-                    EndDateTimeUtc = hotOpModel.EndDateTimeUtc
+                    StartDateTimeUtc = startDateTime,
+                    EndDateTimeUtc = endDateTime,
+                    PrimaryChannelId = hotOpModel.PrimaryChannelId
                 };
 
                 await Context.HotOps.AddAsync(hotOpEntity);
                 await Context.SaveChangesAsync();
 
                 hotOpModel.Id = hotOpEntity.Id;
+                hotOpModel.Owner = Mapper.Map<Entities.DiscordUser, Models.DiscordUser>(discordUser);
                 return Ok(hotOpModel);
             }
             catch (Exception ex)
