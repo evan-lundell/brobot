@@ -16,15 +16,15 @@ namespace Brobot.Api.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
-    public class StopWordsController : BrobotControllerBase
+    public class WordsController : BrobotControllerBase
     {
-        public StopWordsController(BrobotDbContext context, ILogger<StopWordsController> logger, IMapper mapper) : 
+        public WordsController(BrobotDbContext context, ILogger<WordsController> logger, IMapper mapper) : 
             base(context, logger, mapper)
         {
         }
 
-        [HttpGet]
-        public async Task<ActionResult<Models.StopWord>> Get()
+        [HttpGet("stopwords")]
+        public async Task<ActionResult<Models.StopWord>> GetStopwords()
         {
             try
             {

@@ -351,7 +351,7 @@ namespace Brobot.Core.Services
         {
             try
             {
-                var response = await _client.GetStringAsync("stopwords");
+                var response = await _client.GetStringAsync("words/stopwords");
                 return JsonConvert.DeserializeObject<IEnumerable<StopWord>>(response);
             }
             catch (Exception ex)
@@ -504,6 +504,63 @@ namespace Brobot.Core.Services
             {
                 _logger.LogError(ex, "Failed to create hot op");
                 throw new BrobotServiceException("Failed to create hot op", ex);
+            }
+        }
+
+        public async Task<IEnumerable<DailyMessageCount>> GetDailyMessageCounts(DateTime? startDate = null, DateTime? endDate = null)
+        {
+            try
+            {
+                var queryString = "";
+                var queryStringParams = new List<string>();
+                
+                if (startDate.HasValue)
+                {
+                    queryStringParams.Add($"startDate={startDate.Value.ToString("yyyy-MM-dd")}");
+                }
+
+                if (endDate.HasValue)
+                {
+                    queryStringParams.Add($"endDate={endDate.Value.ToString("yyyy-MM-dd")}");
+                }
+
+                if (queryStringParams.Count > 0)
+                {
+                    queryString = string.Concat("?", string.Join("&", queryStringParams));
+                }
+
+                var response = await _client.GetStringAsync($"messages{queryString}");
+                return JsonConvert.DeserializeObject<IEnumerable<DailyMessageCount>>(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to get daily message counts");
+                throw new BrobotServiceException("Failed to get daily message counts", ex);
+            }
+        }
+
+        public async Task<IEnumerable<DailyMessageCount>> CreateDailyMessageCounts(IEnumerable<DailyMessageCount> dailyMessageCounts)
+        {
+            try
+            {
+                var content = new StringContent(JsonConvert.SerializeObject(dailyMessageCounts), Encoding.UTF8, "application/json");
+                var response = await _client.PostAsync("messages", content);
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new BrobotServiceException($"Failed to create daily message counts with a status code of {response.StatusCode}");
+                }
+
+                var responseString = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<IEnumerable<DailyMessageCount>>(responseString);
+            }
+            catch (BrobotServiceException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to create daily message counts");
+                throw new BrobotServiceException("Failed to create daily message counts", ex);
             }
         }
     }

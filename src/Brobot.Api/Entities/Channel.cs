@@ -13,11 +13,14 @@ namespace Brobot.Api.Entities
         public Server Server { get; set; }
         public ulong ServerId { get; set; }
 
+        public string PrimaryTimezone { get; set; }
+
         public ICollection<DiscordUserChannel> DiscordUserChannels { get; set; }
         public ICollection<EventResponse> EventResponses { get; set; }
         public ICollection<Reminder> Reminders { get; set; }
         public ICollection<JobChannel> JobChannels { get; set; }
         public ICollection<HotOp> HotOps { get; set; }
+        public ICollection<DailyMessageCount> DailyMessageCounts { get; set; }
 
         public Channel()
         {
@@ -26,6 +29,7 @@ namespace Brobot.Api.Entities
             Reminders = new HashSet<Reminder>();
             JobChannels = new HashSet<JobChannel>();
             HotOps = new HashSet<HotOp>();
+            DailyMessageCounts = new HashSet<DailyMessageCount>();
         }
     }
 }

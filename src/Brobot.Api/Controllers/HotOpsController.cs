@@ -35,7 +35,6 @@ namespace Brobot.Api.Controllers
                     .AsNoTracking()
                     .Include(ho => ho.Sessions)
                     .ThenInclude(hos => hos.DiscordUser)
-                    .AsSplitQuery()
                     .Include(ho => ho.Owner);
                 if (activeOnly)
                 {
@@ -70,7 +69,6 @@ namespace Brobot.Api.Controllers
                 var hotOp = await Context.HotOps
                     .AsNoTracking()
                     .Include(ho => ho.Owner)
-                    .AsSplitQuery()
                     .Include(ho => ho.Sessions)
                     .ThenInclude(hos => hos.DiscordUser)
                     .ThenInclude(du => du.DiscordUserChannels)

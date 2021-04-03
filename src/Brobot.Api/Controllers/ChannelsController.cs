@@ -79,7 +79,6 @@ namespace Brobot.Api.Controllers
                     .AsNoTracking()
                     .Include(ho => ho.Owner)
                     .ThenInclude(du => du.DiscordUserChannels)
-                    .AsSplitQuery()
                     .Include(ho => ho.Sessions)
                     .ThenInclude(hos => hos.DiscordUser)
                     .ThenInclude(du => du.DiscordUserChannels)

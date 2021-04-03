@@ -25,6 +25,7 @@ namespace Brobot.Api.Contexts
         public DbSet<StopWord> StopWords { get; set; }
         public DbSet<VoiceChannel> VoiceChannels { get; set; }
         public DbSet<HotOp> HotOps { get; set; }
+        public DbSet<DailyMessageCount> DailyMessageCounts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -51,6 +52,11 @@ namespace Brobot.Api.Contexts
                 .HasColumnName("name")
                 .IsRequired(true)
                 .HasMaxLength(128);
+            builder.Entity<Channel>()
+                .Property(c => c.PrimaryTimezone)
+                .HasColumnName("primary_timezone")
+                .IsRequired(false)
+                .HasMaxLength(64);
             builder.Entity<Channel>()
                 .Property(c => c.ServerId)
                 .HasColumnName("server_id");
@@ -519,6 +525,32 @@ namespace Brobot.Api.Contexts
                 .HasOne(hos => hos.VoiceChannel)
                 .WithMany(vc => vc.HotOpSessions)
                 .HasForeignKey(hos => hos.VoiceChannelId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<DailyMessageCount>()
+                .ToTable(name: "daily_message_count", schema: "brobot")
+                .HasKey(dmc => new { dmc.DiscordUserId, dmc.ChannelId, dmc.Day });
+            builder.Entity<DailyMessageCount>()
+                .Property(dmc => dmc.DiscordUserId)
+                .HasColumnName("discord_user_id");
+            builder.Entity<DailyMessageCount>()
+                .Property(dmc => dmc.ChannelId)
+                .HasColumnName("channel_id");
+            builder.Entity<DailyMessageCount>()
+                .Property(dmc => dmc.Day)
+                .HasColumnName("day");
+            builder.Entity<DailyMessageCount>()
+                .Property(dmc => dmc.MessageCount)
+                .HasColumnName("message_count");
+            builder.Entity<DailyMessageCount>()
+                .HasOne(dmc => dmc.DiscordUser)
+                .WithMany(du => du.DailyMessageCounts)
+                .HasForeignKey(dmc => dmc.DiscordUserId)
+                .OnDelete(DeleteBehavior.Cascade);
+            builder.Entity<DailyMessageCount>()
+                .HasOne(dmc => dmc.Channel)
+                .WithMany(c => c.DailyMessageCounts)
+                .HasForeignKey(dmc => dmc.ChannelId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

@@ -15,9 +15,9 @@ namespace Brobot.Api.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .UseIdentityByDefaultColumns()
                 .HasAnnotation("Relational:MaxIdentifierLength", 63)
-                .HasAnnotation("ProductVersion", "5.0.2");
+                .HasAnnotation("ProductVersion", "5.0.4")
+                .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
             modelBuilder.Entity("Brobot.Api.Entities.Channel", b =>
                 {
@@ -32,6 +32,11 @@ namespace Brobot.Api.Migrations
                         .HasColumnType("character varying(128)")
                         .HasColumnName("name");
 
+                    b.Property<string>("PrimaryTimezone")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("primary_timezone");
+
                     b.Property<decimal>("ServerId")
                         .HasColumnType("numeric(20,0)")
                         .HasColumnName("server_id");
@@ -43,13 +48,38 @@ namespace Brobot.Api.Migrations
                     b.ToTable("channel", "brobot");
                 });
 
+            modelBuilder.Entity("Brobot.Api.Entities.DailyMessageCount", b =>
+                {
+                    b.Property<decimal>("DiscordUserId")
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("discord_user_id");
+
+                    b.Property<decimal>("ChannelId")
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("channel_id");
+
+                    b.Property<DateTime>("Day")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("day");
+
+                    b.Property<int>("MessageCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("message_count");
+
+                    b.HasKey("DiscordUserId", "ChannelId", "Day");
+
+                    b.HasIndex("ChannelId");
+
+                    b.ToTable("daily_message_count", "brobot");
+                });
+
             modelBuilder.Entity("Brobot.Api.Entities.DiscordEvent", b =>
                 {
                     b.Property<int>("DiscordEventId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id")
-                        .UseIdentityByDefaultColumn();
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -119,7 +149,7 @@ namespace Brobot.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id")
-                        .UseIdentityByDefaultColumn();
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<decimal?>("ChannelId")
                         .HasColumnType("numeric(20,0)")
@@ -155,7 +185,7 @@ namespace Brobot.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id")
-                        .UseIdentityByDefaultColumn();
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<DateTime>("EndDateTimeUtc")
                         .HasColumnType("timestamp without time zone")
@@ -188,7 +218,7 @@ namespace Brobot.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id")
-                        .UseIdentityByDefaultColumn();
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<decimal>("DiscordUserId")
                         .HasColumnType("numeric(20,0)")
@@ -227,7 +257,7 @@ namespace Brobot.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id")
-                        .UseIdentityByDefaultColumn();
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<DateTime>("CreatedDateUtc")
                         .ValueGeneratedOnAdd()
@@ -290,7 +320,7 @@ namespace Brobot.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id")
-                        .UseIdentityByDefaultColumn();
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Description")
                         .HasMaxLength(1024)
@@ -314,7 +344,7 @@ namespace Brobot.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id")
-                        .UseIdentityByDefaultColumn();
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<int>("JobId")
                         .HasColumnType("integer")
@@ -345,7 +375,7 @@ namespace Brobot.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id")
-                        .UseIdentityByDefaultColumn();
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("DataType")
                         .IsRequired()
@@ -389,7 +419,7 @@ namespace Brobot.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id")
-                        .UseIdentityByDefaultColumn();
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<decimal>("ChannelId")
                         .HasColumnType("numeric(20,0)")
@@ -434,7 +464,7 @@ namespace Brobot.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id")
-                        .UseIdentityByDefaultColumn();
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<decimal?>("CreatedById")
                         .HasColumnType("numeric(20,0)")
@@ -469,7 +499,7 @@ namespace Brobot.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id")
-                        .UseIdentityByDefaultColumn();
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<bool?>("CheckPastYearPairings")
                         .IsRequired()
@@ -512,7 +542,7 @@ namespace Brobot.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id")
-                        .UseIdentityByDefaultColumn();
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<decimal>("GiverId")
                         .HasColumnType("numeric(20,0)")
@@ -561,7 +591,7 @@ namespace Brobot.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id")
-                        .UseIdentityByDefaultColumn();
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Word")
                         .IsRequired()
@@ -606,6 +636,25 @@ namespace Brobot.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("Server");
+                });
+
+            modelBuilder.Entity("Brobot.Api.Entities.DailyMessageCount", b =>
+                {
+                    b.HasOne("Brobot.Api.Entities.Channel", "Channel")
+                        .WithMany("DailyMessageCounts")
+                        .HasForeignKey("ChannelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Brobot.Api.Entities.DiscordUser", "DiscordUser")
+                        .WithMany("DailyMessageCounts")
+                        .HasForeignKey("DiscordUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Channel");
+
+                    b.Navigation("DiscordUser");
                 });
 
             modelBuilder.Entity("Brobot.Api.Entities.DiscordUserChannel", b =>
@@ -845,6 +894,8 @@ namespace Brobot.Api.Migrations
 
             modelBuilder.Entity("Brobot.Api.Entities.Channel", b =>
                 {
+                    b.Navigation("DailyMessageCounts");
+
                     b.Navigation("DiscordUserChannels");
 
                     b.Navigation("EventResponses");
@@ -863,6 +914,8 @@ namespace Brobot.Api.Migrations
 
             modelBuilder.Entity("Brobot.Api.Entities.DiscordUser", b =>
                 {
+                    b.Navigation("DailyMessageCounts");
+
                     b.Navigation("DiscordUserChannels");
 
                     b.Navigation("GiverPairings");

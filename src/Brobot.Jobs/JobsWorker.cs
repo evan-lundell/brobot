@@ -132,7 +132,7 @@ namespace Brobot.Jobs
             var type = Type.GetType($"Brobot.Jobs.JobTasks.{job.JobDefinition.Name}JobTask");
             if (type == null)
             {
-                _logger.LogWarning($"Unabled to create instance of {job.JobDefinition.Name} job");
+                _logger.LogWarning($"Unable to create instance of {job.JobDefinition.Name} job");
                 return;
             }
             var newJobTask = ActivatorUtilities.CreateInstance(_serviceProvider, type, job) as JobTaskBase;

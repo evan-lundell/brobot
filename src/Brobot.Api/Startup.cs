@@ -30,8 +30,18 @@ namespace Brobot.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddDbContext<BrobotDbContext>(builder => builder.UseNpgsql(Configuration.GetConnectionString("Default")));
-            services.AddDbContext<AuthenticationDbContext>(builder => builder.UseNpgsql(Configuration.GetConnectionString("Default")));
+            services.AddDbContext<BrobotDbContext>(builder =>
+            {
+                builder.UseNpgsql(Configuration.GetConnectionString("Default"), o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
+                // Ignoring this warning because of a bug in EF Core https://github.com/dotnet/efcore/issues/22579
+                builder.ConfigureWarnings(w => w.Ignore(10102));
+            });
+            services.AddDbContext<AuthenticationDbContext>(builder =>
+            {
+                builder.UseNpgsql(Configuration.GetConnectionString("Default"), o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
+                // Ignoring this warning because of a bug in EF Core https://github.com/dotnet/efcore/issues/22579
+                builder.ConfigureWarnings(w => w.Ignore(10102));
+            });
 
             services.AddAuthentication(options =>
             {

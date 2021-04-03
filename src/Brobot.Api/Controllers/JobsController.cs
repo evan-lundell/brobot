@@ -32,12 +32,12 @@ namespace Brobot.Api.Controllers
                     .AsNoTracking()
                     .Include(j => j.JobParameters)
                     .ThenInclude(jp => jp.JobParameterDefinition)
-                    .AsSplitQuery()
                     .Include(j => j.JobDefinition)
                     .ThenInclude(jd => jd.JobParameterDefinitions)
-                    .AsSplitQuery()
                     .Include(j => j.JobChannels)
                     .ThenInclude(jc => jc.Channel)
+                    .ThenInclude(c => c.DiscordUserChannels)
+                    .ThenInclude(duc => duc.DiscordUser)
                     .ToListAsync();
 
                 return Ok(Mapper.Map<IEnumerable<Entities.Job>, IEnumerable<Models.Job>>(jobs));
@@ -86,12 +86,15 @@ namespace Brobot.Api.Controllers
             {
                 var jobEntity = await Context.Jobs
                     .AsNoTracking()
+                    .OrderBy(j => j.JobId)
                     .Include(j => j.JobParameters)
                     .ThenInclude(jp => jp.JobParameterDefinition)
                     .Include(j => j.JobDefinition)
                     .ThenInclude(jd => jd.JobParameterDefinitions)
                     .Include(j => j.JobChannels)
                     .ThenInclude(jc => jc.Channel)
+                    .ThenInclude(c => c.DiscordUserChannels)
+                    .ThenInclude (duc => duc.DiscordUser)
                     .SingleOrDefaultAsync(j => j.JobId == id);
                 
                 if (jobEntity == null)

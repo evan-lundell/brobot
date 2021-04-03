@@ -11,14 +11,15 @@ using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using Sdcb.WordClouds;
+using TimeZoneConverter;
 
 namespace Brobot.Jobs.JobTasks
 {
-    public class StatsJobTask : JobTaskBase
+    public class MonthlyStatsReportJobTask : JobTaskBase
     {
         private const string _wordcloudPath = "wordcloud.png";
 
-        public StatsJobTask(ILogger<StatsJobTask> logger, IBrobotService brobotService, DiscordSocketClient discordClient, Job job) 
+        public MonthlyStatsReportJobTask(ILogger<MonthlyStatsReportJobTask> logger, IBrobotService brobotService, DiscordSocketClient discordClient, Job job) 
             : base(logger, brobotService, discordClient, job)
         {
         }
@@ -27,15 +28,30 @@ namespace Brobot.Jobs.JobTasks
         {
             try
             {
-                var periodParameter = Job.JobParameters.FirstOrDefault(jp => jp.Name.Equals("period", StringComparison.OrdinalIgnoreCase));
                 var wordCloudParameter = Job.JobParameters.FirstOrDefault(jp => jp.Name.Equals("GenerateWordCloud", StringComparison.OrdinalIgnoreCase));
                 bool.TryParse(wordCloudParameter?.Value ?? "false", out bool generateWordCloud);
                 HashSet<string> stopWords = null;
+
+                var now = DateTime.UtcNow;
+                var startOfThisMonth = new DateTime(now.Year, now.Month, 1, 0, 0, 0);
+                var startOfLastMonth = startOfThisMonth.AddMonths(-1);
+
+                Dictionary<ulong, List<DailyMessageCount>> messageCounts = new Dictionary<ulong, List<DailyMessageCount>>();
+                foreach (var messageCount in await BrobotService.GetDailyMessageCounts(startOfLastMonth, startOfThisMonth))
+                {
+                    if (!messageCounts.ContainsKey(messageCount.Channel.ChannelId))
+                    {
+                        messageCounts.Add(messageCount.Channel.ChannelId, new List<DailyMessageCount>());
+                    }
+                    messageCounts[messageCount.Channel.ChannelId].Add(messageCount);
+                }
 
                 if (generateWordCloud)
                 {
                     stopWords = new HashSet<string>((await BrobotService.GetStopWords()).Select(sw => sw.Word));
                 }
+                string[] separatingStrings = { " ", "\t", "\n", "\r\n", ",", ":", ".", "!", "/", "\\", "%", "&", "?", "(", ")", "\"", "@" };
+
 
                 foreach (var channel in Job.Channels)
                 {
@@ -45,8 +61,6 @@ namespace Brobot.Jobs.JobTasks
                         continue;
                     }
 
-                    string[] separatingStrings = { " ", "\t", "\n", "\r\n", ",", ":", ".", "!" };
-
                     var messageCount = new Dictionary<ulong, (string UserName, int MessageCount)>();
                     var words = new Dictionary<string, int>();
                     foreach (var user in discordChannel.Users)
@@ -54,26 +68,39 @@ namespace Brobot.Jobs.JobTasks
                         messageCount.Add(user.Id, (UserName: user.Username, MessageCount: 0));
                     }
 
-                    var timePeriod = GetPeriod(periodParameter.Value);
-                    var messages = await socketTextChannel.GetMessagesAsync(limit: 10000).FlattenAsync();
-                    foreach (var message in messages.Where(m => m.CreatedAt.UtcDateTime >= timePeriod.PeriodStartInclusive && m.CreatedAt.UtcDateTime < timePeriod.PeriodEndExclusive))
+                    foreach (var mc in messageCounts[channel.ChannelId])
                     {
-                        if (!messageCount.TryGetValue(message.Author.Id, out (string UserName, int MessageCount) count))
+                        if (!messageCount.TryGetValue(mc.DiscordUser.DiscordUserId, out (string UserName, int MessageCount) count))
                         {
                             continue;
                         }
                         count.MessageCount++;
-                        messageCount[message.Author.Id] = count;
-                        if (generateWordCloud)
+                        messageCount[mc.DiscordUser.DiscordUserId] = count;
+                    }
+
+                    if (generateWordCloud)
+                    {
+                        TimeSpan lastMonthOffset = TimeSpan.Zero, currentOffset = TimeSpan.Zero;
+                        if (!string.IsNullOrWhiteSpace(channel.PrimaryTimezone))
+                        {
+                            var tzInfo = TZConvert.GetTimeZoneInfo(channel.PrimaryTimezone);
+                            lastMonthOffset = tzInfo.GetUtcOffset(startOfLastMonth);
+                            currentOffset = tzInfo.GetUtcOffset(startOfThisMonth);
+                        }
+                        var startDateTime = new DateTimeOffset(startOfLastMonth, lastMonthOffset);
+                        var endDateTime = new DateTimeOffset(startOfThisMonth, currentOffset);
+
+                        foreach (var message in await socketTextChannel.GetMessagesAsync(startDateTime, endDateTime))
                         {
                             foreach (var word in message.Content.Split(separatingStrings, StringSplitOptions.RemoveEmptyEntries).Where(w => !stopWords.Contains(w, StringComparer.OrdinalIgnoreCase)))
                             {
-                                if (!words.ContainsKey(word))
+                                if (!words.ContainsKey(word.ToLower()))
                                 {
-                                    words.Add(word, 0);
+                                    words.Add(word.ToLower(), 0);
                                 }
-                                words[word]++;
+                                words[word.ToLower()]++;
                             }
+
                         }
                     }
 
@@ -115,32 +142,6 @@ namespace Brobot.Jobs.JobTasks
                 Logger.LogError(ex, "Failed to execute stats job.");
                 NumberOfFailures++;
             }
-        }
-
-        private (DateTime PeriodStartInclusive, DateTime PeriodEndExclusive) GetPeriod(string periodType)
-        {
-            var utcNow = DateTime.UtcNow;
-            switch (periodType.ToLower())
-            {
-                case "month":
-                    var lastMonth = utcNow.AddMonths(-1);
-                    var lastMonthStart = new DateTime(lastMonth.Year, lastMonth.Month, 1, 0, 0, 0, DateTimeKind.Utc);
-                    var thisMonthStart = new DateTime(utcNow.Year, utcNow.Month, 1, 0, 0, 0, DateTimeKind.Utc);
-                    return (lastMonthStart, thisMonthStart);
-                case "day":
-                    var yesterday = utcNow.AddDays(-1);
-                    var yesterdayStart = new DateTime(yesterday.Year, yesterday.Month, yesterday.Day, 0, 0, 0, DateTimeKind.Utc);
-                    var todayStart = new DateTime(utcNow.Year, utcNow.Month, utcNow.Day, 0, 0, 0, DateTimeKind.Utc);
-                    return (yesterdayStart, todayStart);
-                case "year":
-                    var lastYear = utcNow.AddYears(-1);
-                    var lastYearStart = new DateTime(lastYear.Year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-                    var thisYearStart = new DateTime(utcNow.Year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-                    return (lastYearStart, thisYearStart);
-                default:
-                    throw new ArgumentException($"{periodType} is not a supported value", "Period");
-            }
-            
         }
     }
 }

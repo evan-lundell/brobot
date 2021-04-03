@@ -62,6 +62,13 @@ namespace Brobot.Api.MappingProfiles
             CreateMap<Entities.VoiceChannel, Models.VoiceChannel>().ReverseMap();
             CreateMap<Entities.HotOp, Models.HotOp>().ReverseMap();
             CreateMap<Entities.HotOpSession, Models.HotOpSession>().ReverseMap();
+            CreateMap<Entities.DailyMessageCount, Models.DailyMessageCount>();
+            
+            CreateMap<Models.DailyMessageCount, Entities.DailyMessageCount>()
+                .ForMember(entity => entity.DiscordUserId, opt => opt.MapFrom(model => model.DiscordUser.DiscordUserId))
+                .ForMember(entity => entity.ChannelId, opt => opt.MapFrom(model => model.Channel.ChannelId))
+                .ForMember(entity => entity.DiscordUser, opt => opt.Ignore())
+                .ForMember(entity => entity.Channel, opt => opt.Ignore());
         }
     }
 }

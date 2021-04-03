@@ -21,6 +21,7 @@ namespace Brobot.Api.Entities
         public ICollection<SecretSantaPairing> RecipientPairings { get; set; }
         public ICollection<HotOp> HotOps { get; set; }
         public ICollection<HotOpSession> HotOpSessions { get; set; }
+        public ICollection<DailyMessageCount> DailyMessageCounts { get; set; }
 
         public DiscordUser()
         {
@@ -32,6 +33,7 @@ namespace Brobot.Api.Entities
             RecipientPairings = new HashSet<SecretSantaPairing>();
             HotOps = new HashSet<HotOp>();
             HotOpSessions = new HashSet<HotOpSession>();
+            DailyMessageCounts = new HashSet<DailyMessageCount>();
         }
     }
 }
