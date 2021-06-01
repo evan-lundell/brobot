@@ -166,21 +166,5 @@ namespace Brobot.Core.Services
         /// <param name="hotOp">The hot op</param>
         /// <returns>The hot op</returns>
         Task<HotOp> CreateHotOp(HotOp hotOp);
-
-        /// <summary>
-        /// Gets the daily message counts
-        /// </summary>
-        /// <param name="channelId">The channel id</param>
-        /// <param name="startDate">The start of the date range</param>
-        /// <param name="endDate">The end of the date range</param>
-        /// <returns>The daily message counts</returns>
-        Task<IEnumerable<DailyMessageCount>> GetDailyMessageCounts(DateTime? startDate = null, DateTime? endDate = null);
-
-        /// <summary>
-        /// Creates new daily message counts
-        /// </summary>
-        /// <param name="dailyMessageCounts">The message counts</param>
-        /// <returns>The message counts</returns>
-        Task<IEnumerable<DailyMessageCount>> CreateDailyMessageCounts(IEnumerable<DailyMessageCount> dailyMessageCounts);
     }
 }

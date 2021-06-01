@@ -20,7 +20,6 @@ namespace Brobot.Api.Entities
         public ICollection<Reminder> Reminders { get; set; }
         public ICollection<JobChannel> JobChannels { get; set; }
         public ICollection<HotOp> HotOps { get; set; }
-        public ICollection<DailyMessageCount> DailyMessageCounts { get; set; }
 
         public Channel()
         {
@@ -29,7 +28,6 @@ namespace Brobot.Api.Entities
             Reminders = new HashSet<Reminder>();
             JobChannels = new HashSet<JobChannel>();
             HotOps = new HashSet<HotOp>();
-            DailyMessageCounts = new HashSet<DailyMessageCount>();
         }
     }
 }

@@ -36,16 +36,6 @@ namespace Brobot.Jobs.JobTasks
                 var startOfThisMonth = new DateTime(now.Year, now.Month, 1, 0, 0, 0);
                 var startOfLastMonth = startOfThisMonth.AddMonths(-1);
 
-                Dictionary<ulong, List<DailyMessageCount>> messageCounts = new Dictionary<ulong, List<DailyMessageCount>>();
-                foreach (var messageCount in await BrobotService.GetDailyMessageCounts(startOfLastMonth, startOfThisMonth))
-                {
-                    if (!messageCounts.ContainsKey(messageCount.Channel.ChannelId))
-                    {
-                        messageCounts.Add(messageCount.Channel.ChannelId, new List<DailyMessageCount>());
-                    }
-                    messageCounts[messageCount.Channel.ChannelId].Add(messageCount);
-                }
-
                 if (generateWordCloud)
                 {
                     stopWords = new HashSet<string>((await BrobotService.GetStopWords()).Select(sw => sw.Word));
@@ -55,6 +45,16 @@ namespace Brobot.Jobs.JobTasks
 
                 foreach (var channel in Job.Channels)
                 {
+                    TimeSpan lastMonthOffset = TimeSpan.Zero, currentOffset = TimeSpan.Zero;
+                    if (!string.IsNullOrWhiteSpace(channel.PrimaryTimezone))
+                    {
+                        var tzInfo = TZConvert.GetTimeZoneInfo(channel.PrimaryTimezone);
+                        lastMonthOffset = tzInfo.GetUtcOffset(startOfLastMonth);
+                        currentOffset = tzInfo.GetUtcOffset(startOfThisMonth);
+                    }
+                    var startDateTime = new DateTimeOffset(startOfLastMonth, lastMonthOffset);
+                    var endDateTime = new DateTimeOffset(startOfThisMonth, currentOffset);
+
                     var discordChannel = DiscordClient.GetChannel(channel.ChannelId);
                     if (!(discordChannel is SocketTextChannel socketTextChannel))
                     {
@@ -68,29 +68,15 @@ namespace Brobot.Jobs.JobTasks
                         messageCount.Add(user.Id, (UserName: user.Username, MessageCount: 0));
                     }
 
-                    foreach (var mc in messageCounts[channel.ChannelId])
+                    foreach (var message in await socketTextChannel.GetMessagesAsync(startDateTime, endDateTime))
                     {
-                        if (!messageCount.TryGetValue(mc.DiscordUser.DiscordUserId, out (string UserName, int MessageCount) count))
+                        if (messageCount.TryGetValue(message.Author.Id, out var count))
                         {
-                            continue;
+                            count.MessageCount++;
+                            messageCount[message.Author.Id] = count;
                         }
-                        count.MessageCount++;
-                        messageCount[mc.DiscordUser.DiscordUserId] = count;
-                    }
 
-                    if (generateWordCloud)
-                    {
-                        TimeSpan lastMonthOffset = TimeSpan.Zero, currentOffset = TimeSpan.Zero;
-                        if (!string.IsNullOrWhiteSpace(channel.PrimaryTimezone))
-                        {
-                            var tzInfo = TZConvert.GetTimeZoneInfo(channel.PrimaryTimezone);
-                            lastMonthOffset = tzInfo.GetUtcOffset(startOfLastMonth);
-                            currentOffset = tzInfo.GetUtcOffset(startOfThisMonth);
-                        }
-                        var startDateTime = new DateTimeOffset(startOfLastMonth, lastMonthOffset);
-                        var endDateTime = new DateTimeOffset(startOfThisMonth, currentOffset);
-
-                        foreach (var message in await socketTextChannel.GetMessagesAsync(startDateTime, endDateTime))
+                        if (generateWordCloud)
                         {
                             foreach (var word in message.Content.Split(separatingStrings, StringSplitOptions.RemoveEmptyEntries).Where(w => !stopWords.Contains(w, StringComparer.OrdinalIgnoreCase)))
                             {
@@ -100,7 +86,6 @@ namespace Brobot.Jobs.JobTasks
                                 }
                                 words[word.ToLower()]++;
                             }
-
                         }
                     }
 

@@ -48,31 +48,6 @@ namespace Brobot.Api.Migrations
                     b.ToTable("channel", "brobot");
                 });
 
-            modelBuilder.Entity("Brobot.Api.Entities.DailyMessageCount", b =>
-                {
-                    b.Property<decimal>("DiscordUserId")
-                        .HasColumnType("numeric(20,0)")
-                        .HasColumnName("discord_user_id");
-
-                    b.Property<decimal>("ChannelId")
-                        .HasColumnType("numeric(20,0)")
-                        .HasColumnName("channel_id");
-
-                    b.Property<DateTime>("Day")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("day");
-
-                    b.Property<int>("MessageCount")
-                        .HasColumnType("integer")
-                        .HasColumnName("message_count");
-
-                    b.HasKey("DiscordUserId", "ChannelId", "Day");
-
-                    b.HasIndex("ChannelId");
-
-                    b.ToTable("daily_message_count", "brobot");
-                });
-
             modelBuilder.Entity("Brobot.Api.Entities.DiscordEvent", b =>
                 {
                     b.Property<int>("DiscordEventId")
@@ -638,25 +613,6 @@ namespace Brobot.Api.Migrations
                     b.Navigation("Server");
                 });
 
-            modelBuilder.Entity("Brobot.Api.Entities.DailyMessageCount", b =>
-                {
-                    b.HasOne("Brobot.Api.Entities.Channel", "Channel")
-                        .WithMany("DailyMessageCounts")
-                        .HasForeignKey("ChannelId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Brobot.Api.Entities.DiscordUser", "DiscordUser")
-                        .WithMany("DailyMessageCounts")
-                        .HasForeignKey("DiscordUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Channel");
-
-                    b.Navigation("DiscordUser");
-                });
-
             modelBuilder.Entity("Brobot.Api.Entities.DiscordUserChannel", b =>
                 {
                     b.HasOne("Brobot.Api.Entities.Channel", "Channel")
@@ -894,8 +850,6 @@ namespace Brobot.Api.Migrations
 
             modelBuilder.Entity("Brobot.Api.Entities.Channel", b =>
                 {
-                    b.Navigation("DailyMessageCounts");
-
                     b.Navigation("DiscordUserChannels");
 
                     b.Navigation("EventResponses");
@@ -914,8 +868,6 @@ namespace Brobot.Api.Migrations
 
             modelBuilder.Entity("Brobot.Api.Entities.DiscordUser", b =>
                 {
-                    b.Navigation("DailyMessageCounts");
-
                     b.Navigation("DiscordUserChannels");
 
                     b.Navigation("GiverPairings");
