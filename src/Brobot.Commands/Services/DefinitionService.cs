@@ -35,12 +35,18 @@ namespace Brobot.Commands.Services
                 }
 
                 var responseString = await response.Content.ReadAsStringAsync();
-                var dictionaryResult = JsonConvert.DeserializeObject<DictionaryResponse>(responseString);
+                var dictionaryResults = JsonConvert.DeserializeObject<DictionaryResponse[]>(responseString);
+                if (dictionaryResults.Length == 0)
+                {
+                    return $"Failed to find word {word}";
+                }
+
+                var dictionaryResult = dictionaryResults[0];
                 var definitionString = new StringBuilder();
                 var count = 1;
                 foreach (var meaning in dictionaryResult.Meanings)
                 {
-                    definitionString.Append($"{count}: ({meaning.PartOfSpeech}) {meaning.Definitions[0].Definition}");
+                    definitionString.AppendLine($"{count}: ({meaning.PartOfSpeech}) {meaning.Definitions[0].Definition}");
                     count++;
                 }
                 return definitionString.ToString();
