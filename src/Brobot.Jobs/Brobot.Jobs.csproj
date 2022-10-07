@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <UserSecretsId>dotnet-Brobot.Jobs-21CB3423-3659-4AF5-B8F5-34DCCD8C7D02</UserSecretsId>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>

@@ -12,5 +12,6 @@ namespace Brobot.Commands
         public string RandomFactBaseUrl { get; set; }
         public string GiphyApiKey { get; set; }
         public string GiphyBaseUrl { get; set; }
+        public string DictionaryBaseUrl { get; set; }
     }
 }

@@ -17,6 +17,7 @@ namespace Brobot.Commands.Modules
         public Random Random { get; set; }
         public IRandomFactService RandomFactService { get; set; }
         public IGiphyService GiphyService { get; set; }
+        public IDefinitionService DefinitionService { get; set; }
 
         [Command("game")]
         [Summary("Picks a random game from the given list. Ex: !game \"Rocket League\" \"Overwatch\" \"Dauntless\"")]
@@ -216,6 +217,20 @@ namespace Brobot.Commands.Modules
             {
                 await ReplyAsync("Failed to get hot op scores");
             }
+        }
+
+        [Command("define")]
+        [Summary("Gets the definition of a word")]
+        public async Task Define(string word)
+        {
+            if (word.Split(" ").Length > 1)
+            {
+                await ReplyAsync("Only one word allowed");
+                return;
+            }
+
+            var definition = await DefinitionService.GetDefinitions(word);
+            await ReplyAsync(definition);
         }
     }
 }

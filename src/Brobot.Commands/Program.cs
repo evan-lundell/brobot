@@ -54,6 +54,11 @@ namespace Brobot.Commands
                         configure.BaseAddress = new Uri(commandsSettings.GiphyBaseUrl);
                     });
 
+                    services.AddHttpClient<IDefinitionService, DefinitionService>(configure =>
+                    {
+                        configure.BaseAddress = new Uri(commandsSettings.DictionaryBaseUrl);
+                    });
+
                     var config = new DiscordSocketConfig
                     {
                         AlwaysDownloadUsers = true
